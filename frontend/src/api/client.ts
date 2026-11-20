@@ -36,10 +36,6 @@ export class ApiError extends Error {
     this.status = status;
     this.body = body;
   }
-
-  get notImplemented(): boolean {
-    return this.body.code === "NOT_IMPLEMENTED";
-  }
 }
 
 function isEnvelope(value: unknown): value is { error: ErrorBody } {

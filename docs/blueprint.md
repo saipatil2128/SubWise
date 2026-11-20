@@ -1,4 +1,7 @@
 <!-- Exported from the living blueprint doc on 2026-11-21 (v2). The doc is the source of truth;
+
+> **Implementation note (full build):** where this blueprint and [ADR-010](decisions/ADR-010-full-build.md) differ, ADR-010 wins — most importantly, no prices are seeded; all plans and prices come from live retrieval of official pages.
+
      re-export after changes. The two diagrams (architecture, run graph) render in the doc only. -->
 
 # SubWise — Architecture Blueprint v2

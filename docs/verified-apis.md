@@ -25,9 +25,8 @@ Re-run after any pin change: `cd backend; pytest tests/integration -q`.
 | beautifulsoup4 / lxml | 4.15.0 / 6.1.3 | lxml has Windows wheels |
 | pwdlib[argon2] / pyjwt | 0.4.2 / 2.15.1 | Auth (M3) |
 | python-ulid | 4.2.0 | Prefixed IDs (`run_…`, `usr_…`) |
-| sse-starlette | 3.7.0 | SSE (M11) |
 | tavily-python *(extra `search`)* | 0.8.5 | Optional |
-| playwright *(extra `browser`)* | 1.65.2 | Optional; then `python -m playwright install chromium` |
+| playwright *(extra `browser`)* | 1.65.2 | Optional JS rendering of pricing pages, and the browser E2E test (`pytest -m e2e`); then `python -m playwright install chromium` |
 | pytest, pytest-cov, respx, hypothesis, freezegun, ruff, mypy *(extra `dev`)* | 9.2.0, 7.1.0, 0.23.1, 6.170.17, 1.5.5, 0.17.6, 2.4.1 | |
 
 Python: **3.12 recommended** (`requires-python = ">=3.12,<3.14"`).
@@ -38,7 +37,11 @@ React 19.3.1 · react-router 8.5.2 · @tanstack/react-query 5.108.2 · Vite 8.3.
 @vitejs/plugin-react 6.3.0 · Tailwind CSS 4.3.5 (`@tailwindcss/vite`) · Vitest 5.1.1 · jsdom 31.0.1 ·
 @testing-library/react 16.3.3 · openapi-typescript 7.13.0 · **TypeScript 5.9.3**.
 TypeScript 7.0.2 is newer but conflicts with openapi-typescript's `typescript@^5` peer (ADR-008).
-Recharts is deferred until M13 needs it.
+Recharts 3.11.0 (charts on Dashboard, report, price history and History pages).
+
+Server-Sent Events use FastAPI's plain `StreamingResponse` (`text/event-stream`, event names
+`run_event` and `run_status`, `id:` = event seq for replay); the browser uses the native
+`EventSource`, so no SSE library is needed on either side (`sse-starlette` was dropped).
 
 ## LangGraph: checkpoint, interrupt, resume (langgraph 1.2.24 + checkpoint-sqlite 3.1.3)
 

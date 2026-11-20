@@ -1,22 +1,66 @@
 {
+  // Run and Debug (Ctrl+Shift+D). Pick "SubWise: backend + frontend" to start everything.
+  // The backend interpreter is backend\.venv (see settings.json); create it with scripts\setup.ps1.
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "SubWise API (uvicorn)",
+      "name": "Backend (FastAPI, debug)",
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
-      "args": ["subwise.main:app", "--reload", "--host", "127.0.0.1", "--port", "8000"],
+      "args": ["subwise.main:create_app", "--factory", "--host", "127.0.0.1", "--port", "8000"],
       "cwd": "${workspaceFolder}/backend",
       "env": { "PYTHONUTF8": "1" },
-      "justMyCode": true
+      "justMyCode": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Frontend (Vite dev server)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}/frontend",
+      "serverReadyAction": {
+        "pattern": "Local:\\s+(https?://\\S+)",
+        "uriFormat": "%s",
+        "action": "openExternally"
+      }
+    },
+    {
+      "name": "Backend tests (pytest)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["-q"],
+      "cwd": "${workspaceFolder}/backend",
+      "env": { "PYTHONUTF8": "1" },
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Fetch live prices now (CLI)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "subwise.cli",
+      "args": ["refresh"],
+      "cwd": "${workspaceFolder}/backend",
+      "env": { "PYTHONUTF8": "1" },
+      "console": "integratedTerminal"
     },
     {
       "name": "Check environment",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/backend/scripts/check_env.py",
-      "cwd": "${workspaceFolder}"
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "SubWise: backend + frontend",
+      "configurations": ["Backend (FastAPI, debug)", "Frontend (Vite dev server)"],
+      "stopAll": true
     }
   ]
 }

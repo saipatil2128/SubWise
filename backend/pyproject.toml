@@ -30,7 +30,6 @@ dependencies = [
   "pwdlib[argon2]==0.4.2",
   "pyjwt==2.15.1",
   "python-ulid==4.2.0",
-  "sse-starlette==3.7.0",
 ]
 
 [project.optional-dependencies]

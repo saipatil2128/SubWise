@@ -1,37 +1,30 @@
 # Roadmap and module status
 
-One module = one task (for Antigravity or a team member). Give the task: this module's row, the
-matching blueprint sections, and `AGENTS.md`. Tick an item only when its test passes in CI.
+All modules are implemented. "Verified here" means covered by tests that pass in the build
+environment (see [`test-report.md`](test-report.md)); items that need your machine (internet,
+Ollama, Windows) are marked.
 
-## Phase 1 — scaffold (done, this commit)
-
-- [x] Repository layout, `pyproject.toml` with verified exact pins, Vite app with pinned versions
-- [x] Typed interfaces: domain models (catalog, evidence + `PriceBinding`, `RequestSpec`, optimizer I/O),
-      `RunState`, `graph_config`, error hierarchy + envelope, 31 API operations as 501 stubs
-- [x] Library contract tests (LangGraph checkpoint/interrupt/resume across processes, SqliteStore,
-      Ollama client, PuLP/CBC); architecture-rule tests; frontend shell + tests
-- [x] CI on Windows and Ubuntu (Python 3.12/3.13, Node 22); `check_env.py`; Windows PowerShell scripts
-- [x] AGENTS.md, ADR-001…009, verified-APIs doc, TA2 migration notes
-
-## Phase 2 — modules
-
-Dependencies: M1→M2→M3; M5→M6; M4 needs M2; M7 needs M1; M8 needs M4+M5; M9 needs M2;
-M10 needs M6+M7+M8+M9; M11 needs M3+M10; M12 needs M3; M13 needs M11+M12; M14 needs all.
-Parallel tracks for 4 people: A: M2→M3→M12 · B: M5→M6 · C: M7→M9 · D: M4→M8.
-
-| # | Module | Status | Acceptance (all must hold) |
+| # | Module | Status | Evidence |
 | --- | --- | --- | --- |
-| M1 | JSON logging (`logging_config.py`), request-ID middleware, real `/health` probes (DB, Ollama version + model, search) | ☐ | Logs carry request_id/user_id/run_id; `/health` reports Ollama down correctly; error envelope carries request_id |
-| M2 | SQLAlchemy models for blueprint E (incl. v2 `service_lines`, `plan_entitlements`, `plan_prerequisites`, `plan_eligibility`, `exclusion_group`, `price_observations.binding`), first Alembic migration, user-scoped repositories, WAL + busy timeout | ☐ | `alembic upgrade head` on blank DB; cross-user repository reads return nothing |
-| M3 | Auth (argon2 + JWT cookie + CSRF), profile, requirements, subscriptions API | ☐ | Register/login/logout; CRUD with monthly equivalent; cross-user access → 404 |
-| M4 | Feature vocabulary + catalog seed YAML (providers, service lines, plans, entitlements, exclusion groups) + `seed_catalog.py` | ☐ | ≥ 12 plans in video + music; every price has official URL, date, `fetch_method=manual`, full `PriceBinding`; second person re-checked each against the page |
-| M5 | `core/money`, `core/costing` (equal-cost rule), `core/validation` (five-dimension binding, freshness, conflicts) | ☐ | Blueprint K.2 cases 1, 2, 8, 9, 10 + the five binding-failure tests pass |
-| M6 | OAVOE: two-stage ILP, modes, exclusion groups, add-ons, eligibility, retention via bundles, diagnosis, alternatives, brute-force checker | ☐ | K.2 cases 3–6; bundle + same-provider-other-line allowed; tiers exclusive; add-on needs base; ineligible excluded; ILP = brute force on 200 random instances; < 1 s for 40 plans |
-| M7 | `OllamaGateway`, prompts, rule parser, template report, `check_numbers` | ☐ | With Ollama off all fallbacks valid; with Ollama on ≥ 80% of 30 eval requests parse to a valid `RequestSpec` |
-| M8 | Fetcher, robots, SSRF guard, Tavily provider, ≥ 4 adapters, tier-3 extractor | ☐ | K.2 case 7; no-key run uses tiers 1–2 only; disallowed sources never fetched; live suite reports adapter status |
-| M9 | `memory/backends.py`, `LearnedMemory` | ☐ | K.2 cases 11, 12 through SubWise code (contract tests already pass for the libraries) |
-| M10 | Agent graph (blueprint D) | ☐ | K.2 cases 13, 14; trace records LLM vs rule per decision |
-| M11 | Worker, runs API, SSE with replay, cancel, startup sweep | ☐ | Run survives page refresh; restart → `WORKER_LOST` + resume works |
-| M12 | Frontend: auth, Subscriptions, Profile | ☐ | Forms validate; money only via `MoneyText` |
-| M13 | Frontend: Optimizer (live timeline, evidence, approve/reject), History, Prices, Dashboard; add Recharts | ☐ | Journey steps visible in UI |
-| M14 | Playwright end-to-end, LLM eval run, live-source check, demo script | ☐ | Blueprint section O |
+| M0 | Scaffold, pins, CI (Windows + Ubuntu), VS Code configs, PowerShell scripts | ✅ | CI workflow; `scripts/*.ps1`; `.vscode/` |
+| M1 | JSON logging with request IDs, error envelope, `/health` (DB, Ollama, search, Playwright) | ✅ | `test_health_reports_components`, `test_errors.py` |
+| M2 | SQLAlchemy models, Alembic migration, user-scoped repositories | ✅ | migration runs on every test container; isolation tests |
+| M3 | Auth (argon2, JWT HttpOnly cookie, CSRF header), profile, requirements, subscriptions | ✅ | `test_api_accounts.py` |
+| M4 | Provider registry and feature vocabulary — **no seeded prices** (ADR-010) | ✅ | `registry.py`, `features.py` |
+| M5 | Money, costing, validation (five-dimension binding, freshness, labels, conflicts) | ✅ | `test_money_costing.py`, `test_extract_validation.py` |
+| M6 | OAVOE two-stage ILP, modes, exclusion groups, bundles, add-ons, eligibility, diagnosis, alternatives | ✅ | `test_optimizer.py` (incl. 200-instance brute-force property test) |
+| M7 | Ollama gateway, prompts, rule fallbacks, template report, number checker | ✅ (LLM quality: run `pytest -m llm` locally) | `test_report_and_fallbacks.py`, `test_llm_path_with_number_check_guard` |
+| M8 | Robots-aware fetcher with SSRF guard, extraction for 8 providers, optional Playwright and Tavily URL recovery | ✅ (real sites: run `pytest -m live` locally) | `test_price_service.py` |
+| M9 | Checkpointer and long-term store, learned memory | ✅ | library contracts, rejection-memory workflow test |
+| M10 | LangGraph agent: clarify, research, validate, decide, optimize, explain, check numbers, approval, learn | ✅ | `test_workflow.py` |
+| M11 | Worker, runs API, SSE with replay, cancel, restart sweep + resume | ✅ | `test_paused_run_survives_restart_and_completes`, SSE test |
+| M12 | Frontend: landing, auth, subscriptions, preferences, memory | ✅ | Vitest page tests |
+| M13 | Frontend: optimizer with live timeline, clarification, report + evidence, approval, plans & prices, comparison, history, dashboard (Recharts) | ✅ | Vitest page tests, browser E2E |
+| M14 | Browser E2E, live-source suite, LLM evaluation, test report | ✅ (live/LLM suites need your machine) | `tests/e2e`, `tests/live`, `tests/llm_eval`, `docs/test-report.md` |
+
+## Possible next steps
+
+- Run the live suite on Windows and tune extraction patterns for any provider that returns
+  `no_prices` (see test report, "Needs attention").
+- Scheduled background price refresh (e.g. daily) instead of on-demand only.
+- More countries/currencies (the model already carries country and currency).

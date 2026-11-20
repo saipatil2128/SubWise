@@ -8,7 +8,6 @@ from subwise.errors import (
     ErrorCode,
     LLMTimeout,
     NotFound,
-    NotImplementedYet,
     RunInProgress,
     SubWiseError,
 )
@@ -37,8 +36,8 @@ def test_hierarchy_codes_and_statuses() -> None:
     assert issubclass(LLMTimeout, SubWiseError)
     assert LLMTimeout.code is ErrorCode.LLM_TIMEOUT and LLMTimeout.retryable
     assert RunInProgress.http_status == 409
-    err = NotImplementedYet("M5", "thing")
-    assert err.http_status == 501 and err.details == {"module": "M5"}
+    err = NotFound("No such run.", details={"run_id": "run_1"})
+    assert err.http_status == 404 and err.details == {"run_id": "run_1"}
 
 
 def test_subwise_error_rendered_as_envelope() -> None:

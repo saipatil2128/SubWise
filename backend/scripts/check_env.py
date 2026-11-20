@@ -112,7 +112,7 @@ def run_checks(strict: bool) -> list[Check]:
         Check(
             "Tavily search (optional)",
             OK,
-            "enabled" if settings.search_enabled else "disabled - curated catalog only",
+            "enabled" if settings.search_enabled else "disabled (official URLs only)",
         )
     )
     return checks

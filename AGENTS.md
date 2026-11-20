@@ -5,11 +5,9 @@ stop and write the conflict into the PR description instead of working around it
 
 ## How work is organised
 
-- Work happens **one roadmap module at a time** (`docs/roadmap.md`, M1–M14). A task names its module.
-  Do not implement code that belongs to another module, even if it looks easy.
-- Stubs raise `NotImplementedYet("<module>")`. Implementing a module means removing *its* stubs, and
-  only its stubs.
-- A module is done only when: its acceptance items in `docs/roadmap.md` are met, its tests exist and
+- All roadmap modules (`docs/roadmap.md`, M0–M14) are implemented. A change names the area it
+  touches and keeps the others intact.
+- A change is done only when: its tests exist and
   pass, `ruff check`, `ruff format --check`, `mypy`, `pytest` (backend) and `npm run typecheck`,
   `npm test`, `npm run build` (frontend) pass, and the PR description pastes the test summary.
 - Never claim something works without a passing test or a pasted command output that shows it.
@@ -19,7 +17,7 @@ stop and write the conflict into the PR description instead of working around it
 ## Non-negotiable architecture rules
 
 1. **Money is integer paise.** Never `float` for money; never money arithmetic in the frontend
-   (render `Money.display`). Never ask the LLM to compute, convert or compare prices.
+   (render `Money.display`; charts may use `paise / 100` for geometry only). Never ask the LLM to compute, convert or compare prices.
 2. **The LLM never produces a number the user sees.** It may: parse intent into `RequestSpec`, pick
    a guard-allowed `NextAction`, and verbalise `ReportFacts`. `check_numbers` must pass, else the
    template report is used.
@@ -44,9 +42,11 @@ stop and write the conflict into the PR description instead of working around it
 10. **Web access:** respect robots.txt and terms; honest User-Agent; never bypass CAPTCHAs, logins
     or rate limits; block private-IP URLs (SSRF).
 11. **Free and local only:** no paid APIs required. Tavily is optional (`.[search]` extra); with no key
-    the app must still run end to end on the curated catalog.
+    the app must still run end to end from the registered official pricing URLs.
 12. **Paths come from `Settings`** (`data_dir`), never relative to the current directory. Use
     `pathlib`. Code must run on Windows.
+13. **No fabricated data:** no hardcoded prices, sample users or canned responses in production code.
+    Synthetic fixtures live only under `backend/tests` and `frontend/tests` and never touch `data/`.
 
 ## Errors
 

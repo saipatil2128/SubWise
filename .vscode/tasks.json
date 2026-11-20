@@ -1,0 +1,31 @@
+{
+  // Terminal > Run Task... All tasks use PowerShell on Windows.
+  "version": "2.0.0",
+  "windows": { "options": { "shell": { "executable": "powershell.exe", "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"] } } },
+  "tasks": [
+    { "label": "SubWise: setup (first time)", "type": "shell", "command": "${workspaceFolder}\\scripts\\setup.ps1", "problemMatcher": [] },
+    {
+      "label": "SubWise: backend (auto-reload)",
+      "type": "shell",
+      "command": ".\\.venv\\Scripts\\python.exe -m uvicorn subwise.main:create_app --factory --reload --host 127.0.0.1 --port 8000",
+      "options": { "cwd": "${workspaceFolder}/backend", "env": { "PYTHONUTF8": "1" } },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "SubWise: frontend (Vite)",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    { "label": "SubWise: start both", "dependsOn": ["SubWise: backend (auto-reload)", "SubWise: frontend (Vite)"], "problemMatcher": [] },
+    { "label": "SubWise: initialise database", "type": "shell", "command": ".\\.venv\\Scripts\\python.exe -m subwise.cli init-db", "options": { "cwd": "${workspaceFolder}/backend" }, "problemMatcher": [] },
+    { "label": "SubWise: fetch live prices", "type": "shell", "command": ".\\.venv\\Scripts\\python.exe -m subwise.cli refresh", "options": { "cwd": "${workspaceFolder}/backend", "env": { "PYTHONUTF8": "1" } }, "problemMatcher": [] },
+    { "label": "SubWise: pull Qwen 2.5 3B (Ollama)", "type": "shell", "command": "ollama pull qwen2.5:3b", "problemMatcher": [] },
+    { "label": "SubWise: run all tests", "type": "shell", "command": "${workspaceFolder}\\scripts\\test.ps1", "group": { "kind": "test", "isDefault": true }, "problemMatcher": [] },
+    { "label": "SubWise: browser E2E test", "type": "shell", "command": "${workspaceFolder}\\scripts\\test.ps1 -E2E", "group": "test", "problemMatcher": [] },
+    { "label": "SubWise: build frontend for production", "type": "shell", "command": "npm run build", "options": { "cwd": "${workspaceFolder}/frontend" }, "group": "build", "problemMatcher": [] }
+  ]
+}

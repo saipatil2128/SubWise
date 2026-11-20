@@ -24,7 +24,6 @@ class ErrorCode(StrEnum):
     UNAUTHENTICATED = "UNAUTHENTICATED"
     CONFLICT = "CONFLICT"
     RUN_IN_PROGRESS = "RUN_IN_PROGRESS"
-    NOT_IMPLEMENTED = "NOT_IMPLEMENTED"
     LLM_UNAVAILABLE = "LLM_UNAVAILABLE"
     LLM_TIMEOUT = "LLM_TIMEOUT"
     LLM_INVALID_OUTPUT = "LLM_INVALID_OUTPUT"
@@ -78,18 +77,6 @@ class Conflict(SubWiseError):
 
 class RunInProgress(Conflict):
     code = ErrorCode.RUN_IN_PROGRESS
-
-
-class NotImplementedYet(SubWiseError):
-    """Raised by Phase 1 stubs. ``module`` names the roadmap module that implements it."""
-
-    code, http_status = ErrorCode.NOT_IMPLEMENTED, 501
-
-    def __init__(self, module: str, what: str = "This endpoint") -> None:
-        super().__init__(
-            f"{what} is not implemented yet (roadmap module {module}).",
-            details={"module": module},
-        )
 
 
 class ExternalServiceError(SubWiseError):

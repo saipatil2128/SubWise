@@ -1,12 +1,23 @@
 # Data sources register
 
-Every provider SubWise reads must be listed here **before** its adapter or seed rows are merged
-(M4/M8). No prices are recorded in this file; prices live in `price_observations` with evidence.
+SubWise reads only these official pages. No prices are stored in this file or anywhere in the
+code; prices exist only as `price_observations` created by live retrieval, each with its source
+URL, retrieval time and the evidence text from the page.
 
-| Provider | Service lines | Official India pricing URL | robots.txt checked (date, result) | Terms reviewed (date, note) | Access method | Adapter | Last verified |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| *(added in M4)* | | | | | manual / httpx / playwright | | |
+robots.txt is checked automatically before **every** fetch (a disallowed page is never fetched and
+is reported as `disallowed`). The terms-of-use review is a human task and is still open.
 
-Rules: official domains only; honest User-Agent; respect robots.txt and terms; no CAPTCHA or login
-bypass; if automated access is not allowed, use `fetch_method = manual` with the URL and the date
-a team member copied the price, and say so in the UI.
+| Provider | Official domains | India pricing URL | Needs JavaScript | robots.txt | Terms of use reviewed |
+| --- | --- | --- | --- | --- | --- |
+| Netflix | netflix.com | https://help.netflix.com/en/node/24926/in | no | checked at runtime | ☐ pending |
+| Amazon Prime Video | amazon.in | https://www.amazon.in/amazonprime | no | checked at runtime | ☐ pending |
+| JioHotstar | jiohotstar.com, hotstar.com | https://www.jiohotstar.com/subscribe | yes | checked at runtime | ☐ pending |
+| Sony LIV | sonyliv.com | https://www.sonyliv.com/subscription | yes | checked at runtime | ☐ pending |
+| ZEE5 | zee5.com | https://www.zee5.com/myaccount/subscription | yes | checked at runtime | ☐ pending |
+| Spotify | spotify.com | https://www.spotify.com/in-en/premium/ | no | checked at runtime | ☐ pending |
+| YouTube Premium | youtube.com | https://www.youtube.com/premium?gl=IN&hl=en-IN | yes | checked at runtime | ☐ pending |
+| Apple Music | apple.com | https://www.apple.com/in/apple-music/ | no | checked at runtime | ☐ pending |
+
+Rules: official domains only; honest User-Agent; respect robots.txt and terms; no CAPTCHA, login or
+rate-limit bypass; private-IP targets are blocked. If a provider's terms do not allow automated
+access, remove it from `research/registry.py` rather than working around it.

@@ -11,5 +11,6 @@
 | [007](ADR-007-optional-search.md) | Search is optional; NullSearchProvider by default | Accepted (v2) |
 | [008](ADR-008-frontend-toolchain.md) | TypeScript 5.9, no ESLint yet, Recharts deferred | Accepted (new in Phase 1) |
 | [009](ADR-009-phase1-structure.md) | Small structural deviations from blueprint section L | Accepted (new in Phase 1) |
+| [010](ADR-010-full-build.md) | Full build: no seeded prices, price labels, factory mode, SSE, worker, E2E | Accepted |
 
 New decisions: copy the format, number sequentially, and add the ADR **before** the code.
