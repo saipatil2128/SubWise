@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "SubWise API (uvicorn)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["subwise.main:app", "--reload", "--host", "127.0.0.1", "--port", "8000"],
+      "cwd": "${workspaceFolder}/backend",
+      "env": { "PYTHONUTF8": "1" },
+      "justMyCode": true
+    },
+    {
+      "name": "Check environment",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/scripts/check_env.py",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

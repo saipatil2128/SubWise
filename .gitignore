@@ -1,0 +1,40 @@
+# --- Python ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# --- Node ---
+node_modules/
+frontend/dist/
+frontend/coverage/
+
+# --- Runtime data (never commit) ---
+data/*
+!data/.gitkeep
+!data/sources/
+data/sources/*
+!data/sources/.gitkeep
+logs/
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.idea/
