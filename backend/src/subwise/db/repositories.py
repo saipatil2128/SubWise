@@ -119,7 +119,13 @@ def subscription_view(s: Session, sub: UserSubscription) -> dict[str, Any]:
     plan = s.get(Plan, sub.plan_id) if sub.plan_id else None
     provider_id = plan.provider_id if plan else sub.provider_id
     prov = s.get(Provider, provider_id) if provider_id else None
-    name = plan.name if plan else (sub.custom_name or (prov.name if prov else "Subscription"))
+    if plan is not None:
+        name = plan.name
+    elif prov is not None and sub.custom_name:
+        label = sub.custom_name
+        name = label if label.lower().startswith(prov.name.lower()) else f"{prov.name} {label}"
+    else:
+        name = sub.custom_name or (prov.name if prov else "Subscription")
     return {
         "id": sub.id,
         "plan_id": sub.plan_id,

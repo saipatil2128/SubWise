@@ -25,9 +25,12 @@ class SubscriptionIn(BaseModel):
 
     @model_validator(mode="after")
     def _source(self) -> SubscriptionIn:
-        catalog = self.provider_id is not None or self.plan_id is not None
-        if catalog == (self.custom_name is not None):
-            raise ValueError("Choose a provider/plan from the catalog OR give a custom name.")
+        """A catalog plan, OR a provider with an optional plan label (plan not fetched yet),
+        OR a custom (non-catalog) subscription with a name."""
+        if self.plan_id is not None and self.custom_name is not None:
+            raise ValueError("A catalog plan already has a name; omit custom_name.")
+        if self.provider_id is None and self.plan_id is None and self.custom_name is None:
+            raise ValueError("Choose a provider/plan from the catalog or give a custom name.")
         return self
 
 
@@ -90,6 +93,7 @@ class PlanPriceOut(BaseModel):
     billing_cycle: int
     price: Money
     monthly: Money
+    annual: Money
     status: str
     label: str
     observed_at: AwareDatetime

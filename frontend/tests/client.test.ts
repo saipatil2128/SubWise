@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { ApiError, apiFetch } from "../src/api/client";
+import { api, ApiError, apiFetch, CSRF_HEADER } from "../src/api/client";
 
 const envelope = {
-  error: { code: "NOT_IMPLEMENTED", message: "Later (M3).", retryable: false, details: { module: "M3" }, request_id: null },
+  error: { code: "CONFLICT", message: "Not waiting.", retryable: false, details: { run: "x" }, request_id: "req_1" },
 };
 
 describe("apiFetch", () => {
@@ -14,18 +14,36 @@ describe("apiFetch", () => {
     await expect(apiFetch<{ ok: number }>("/health")).resolves.toEqual({ ok: 1 });
   });
 
+  it("sends the session cookie and the CSRF header on every request", async () => {
+    const f = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", f);
+    await api.deleteSubscription("sub_1");
+    const [url, init] = f.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("/api/v1/subscriptions/sub_1");
+    expect(init.method).toBe("DELETE");
+    expect(init.credentials).toBe("include");
+    expect((init.headers as Record<string, string>)[CSRF_HEADER]).toBe("1");
+  });
+
   it("turns the backend error envelope into ApiError", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(envelope), { status: 501 })));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(envelope), { status: 409 })));
     const err = await apiFetch("/runs").catch((e: unknown) => e);
     expect(err).toBeInstanceOf(ApiError);
-    expect((err as ApiError).status).toBe(501);
-    expect((err as ApiError).notImplemented).toBe(true);
-    expect((err as ApiError).body.details).toEqual({ module: "M3" });
+    expect((err as ApiError).status).toBe(409);
+    expect((err as ApiError).message).toBe("Not waiting.");
+    expect((err as ApiError).body.details).toEqual({ run: "x" });
   });
 
   it("wraps non-envelope failures", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("oops", { status: 502 })));
     const err = (await apiFetch("/x").catch((e: unknown) => e)) as ApiError;
     expect(err.body.code).toBe("INTERNAL_ERROR");
+  });
+
+  it("encodes query parameters", async () => {
+    const f = vi.fn().mockResolvedValue(new Response("[]", { status: 200 }));
+    vi.stubGlobal("fetch", f);
+    await api.plans("jio hotstar");
+    expect(f.mock.calls[0]![0]).toBe("/api/v1/catalog/plans?provider_id=jio%20hotstar");
   });
 });

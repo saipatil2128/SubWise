@@ -166,6 +166,7 @@ def _price_out(p: PlanPrice) -> PlanPriceOut:
         billing_cycle=p.billing_cycle_months,
         price=money(p.price_paise),
         monthly=money(p.monthly_paise),
+        annual=money(annual_cost(p.price_paise, p.billing_cycle_months)),
         status=p.status,
         label=p.label,
         observed_at=p.observed_at,
@@ -173,7 +174,11 @@ def _price_out(p: PlanPrice) -> PlanPriceOut:
         source_url=p.source_url,
         evidence=p.evidence_snippet,
         features=p.features,
-        intro=p.intro,
+        intro=(
+            {**p.intro, "price_display": format_inr(int(p.intro["price_paise"]))}
+            if p.intro and p.intro.get("price_paise") is not None
+            else p.intro
+        ),
     )
 
 

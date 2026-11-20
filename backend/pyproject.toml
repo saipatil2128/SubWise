@@ -57,10 +57,11 @@ subwise = ["py.typed"]
 # ---------------------------------------------------------------- pytest
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers -m 'not llm and not live'"
+addopts = "-ra --strict-markers -m 'not llm and not live and not e2e'"
 markers = [
   "llm: needs a running local Ollama with the configured model (run: pytest -m llm)",
   "live: hits real provider websites (run: pytest -m live)",
+  "e2e: drives the built frontend in a real browser (run: pytest -m e2e)",
 ]
 filterwarnings = [
   "error::DeprecationWarning:subwise.*",

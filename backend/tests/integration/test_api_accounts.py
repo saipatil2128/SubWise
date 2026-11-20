@@ -116,11 +116,18 @@ def test_subscription_crud(client: TestClient, register: Callable[[str], dict[st
         f"{API}/subscriptions", json={"provider_id": "nope", "price_paise": 1, "billing_cycle": 1}
     )
     assert bad.status_code == 422
-    both = client.post(
+    labelled = client.post(
         f"{API}/subscriptions",
-        json={"provider_id": "netflix", "custom_name": "x", "price_paise": 1, "billing_cycle": 1},
+        json={
+            "provider_id": "netflix",
+            "custom_name": "Family",
+            "price_paise": 1,
+            "billing_cycle": 1,
+        },
     )
-    assert both.status_code == 422
+    assert labelled.status_code == 201 and labelled.json()["display_name"] == "Netflix Family"
+    nothing = client.post(f"{API}/subscriptions", json={"price_paise": 1, "billing_cycle": 1})
+    assert nothing.status_code == 422
 
 
 def test_users_cannot_see_or_change_each_others_data(

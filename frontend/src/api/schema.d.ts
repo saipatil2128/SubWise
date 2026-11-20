@@ -159,6 +159,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/features": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Features */
+        get: operations["list_features_api_v1_features_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/subscriptions": {
         parameters: {
             query?: never;
@@ -229,7 +246,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/threads": {
+    "/api/v1/prices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Prices */
+        get: operations["list_prices_api_v1_prices_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prices/{plan_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Price History */
+        get: operations["price_history_api_v1_prices__plan_id__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prices/refresh": {
         parameters: {
             query?: never;
             header?: never;
@@ -237,6 +288,41 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        put?: never;
+        /** Refresh Prices */
+        post: operations["refresh_prices_api_v1_prices_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/prices/attempts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Attempts */
+        get: operations["list_attempts_api_v1_prices_attempts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/threads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Threads */
+        get: operations["list_threads_api_v1_threads_get"];
         put?: never;
         /** Create Thread */
         post: operations["create_thread_api_v1_threads_post"];
@@ -273,10 +359,7 @@ export interface paths {
         /** List Runs */
         get: operations["list_runs_api_v1_runs_get"];
         put?: never;
-        /**
-         * Create Run
-         * @description Returns immediately; 409 RUN_IN_PROGRESS if the user already has an active run.
-         */
+        /** Create Run */
         post: operations["create_run_api_v1_runs_post"];
         delete?: never;
         options?: never;
@@ -301,6 +384,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/{run_id}/events/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Events */
+        get: operations["list_events_api_v1_runs__run_id__events_list_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/runs/{run_id}/events": {
         parameters: {
             query?: never;
@@ -310,7 +410,8 @@ export interface paths {
         };
         /**
          * Stream Events
-         * @description SSE: replay events with seq > after_seq, then stream; heartbeat every 15 s.
+         * @description Server-Sent Events: replays events after ``after_seq`` then streams new ones (polling
+         *     the event table every 0.5 s). Ends shortly after the run pauses or finishes.
          */
         get: operations["stream_events_api_v1_runs__run_id__events_get"];
         put?: never;
@@ -372,6 +473,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/{run_id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resume Run
+         * @description Continue a run interrupted by a server restart from its last checkpoint.
+         */
+        post: operations["resume_run_api_v1_runs__run_id__resume_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Run Reports */
+        get: operations["run_reports_api_v1_runs__run_id__reports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/{report_id}": {
         parameters: {
             query?: never;
@@ -383,57 +521,6 @@ export interface paths {
         get: operations["get_report_api_v1_reports__report_id__get"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/prices": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Prices */
-        get: operations["list_prices_api_v1_prices_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/prices/{plan_id}/history": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Price History */
-        get: operations["price_history_api_v1_prices__plan_id__history_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/prices/refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Refresh Prices */
-        post: operations["refresh_prices_api_v1_prices_refresh_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -479,32 +566,36 @@ export interface components {
             /** Remember */
             remember?: string[];
         };
+        /** AttemptOut */
+        AttemptOut: {
+            /** Provider Id */
+            provider_id: string;
+            /** Url */
+            url: string;
+            /** Outcome */
+            outcome: string;
+            /** Error */
+            error: string | null;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at: string | null;
+            /** Prices Found */
+            prices_found: number;
+            /** Verified Found */
+            verified_found: number;
+            /** Warnings */
+            warnings: string[];
+        };
         /**
          * BillingCycle
          * @description Billing cycle length in months.
          * @enum {integer}
          */
         BillingCycle: 1 | 3 | 6 | 12;
-        /** CatalogPlanOut */
-        CatalogPlanOut: {
-            /** Id */
-            id: string;
-            /** Provider Id */
-            provider_id: string;
-            /** Provider Name */
-            provider_name: string;
-            /** Service Line Id */
-            service_line_id: string;
-            /** Name */
-            name: string;
-            category: components["schemas"]["Category"];
-            billing_cycle: components["schemas"]["BillingCycle"];
-            /** Is Bundle */
-            is_bundle: boolean;
-            /** Exclusion Group */
-            exclusion_group: string;
-            current_price: components["schemas"]["PlanPriceOut"] | null;
-        };
         /**
          * Category
          * @enum {string}
@@ -524,18 +615,33 @@ export interface components {
             /** Active Subscriptions */
             active_subscriptions: number;
             /** Renewals Next 30 Days */
-            renewals_next_30_days: number;
-            latest_potential_saving: components["schemas"]["Money"] | null;
-            /** Latest Report At */
-            latest_report_at: string | null;
-            /** Recent Run Ids */
-            recent_run_ids: string[];
+            renewals_next_30_days: {
+                [key: string]: unknown;
+            }[];
+            /** Spend By Subscription */
+            spend_by_subscription: components["schemas"]["SpendSlice"][];
+            /** Spend By Category */
+            spend_by_category: components["schemas"]["SpendSlice"][];
+            /** Latest Report */
+            latest_report: {
+                [key: string]: unknown;
+            } | null;
+            /** Recent Runs */
+            recent_runs: components["schemas"]["RunOut"][];
+            budget_monthly: components["schemas"]["Money"] | null;
+            /** Over Budget */
+            over_budget: boolean | null;
         };
         /**
          * Decision
          * @enum {string}
          */
         Decision: "approved" | "rejected";
+        /**
+         * Eligibility
+         * @enum {string}
+         */
+        Eligibility: "student" | "new_customer" | "telecom_customer";
         /** ErrorBody */
         ErrorBody: {
             /** Code */
@@ -562,8 +668,13 @@ export interface components {
         EvidenceOut: {
             /** Plan Id */
             plan_id: string;
+            /** Plan Name */
+            plan_name: string;
             price: components["schemas"]["Money"];
-            status: components["schemas"]["ObservationStatus"];
+            /** Billing Cycle */
+            billing_cycle: number;
+            /** Status */
+            status: string;
             /** Source Url */
             source_url: string | null;
             /**
@@ -573,6 +684,17 @@ export interface components {
             observed_at: string;
             /** Evidence Snippet */
             evidence_snippet: string;
+        };
+        /** FeatureDefOut */
+        FeatureDefOut: {
+            /** Code */
+            code: string;
+            /** Label */
+            label: string;
+            /** Category */
+            category: string | null;
+            /** Description */
+            description: string;
         };
         /**
          * FeatureLevel
@@ -590,38 +712,33 @@ export interface components {
              */
             weight: number;
         };
-        /**
-         * Freshness
-         * @enum {string}
-         */
-        Freshness: "fresh" | "stale" | "expired";
         /** HealthOut */
         HealthOut: {
-            /** Status */
-            status: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "degraded";
             /** Version */
             version: string;
             /** Environment */
             environment: string;
-            /** Llm */
-            llm: string;
-            /** Search */
-            search: string;
             /** Database */
             database: string;
-        };
-        /** InfeasibilityDiagnosis */
-        InfeasibilityDiagnosis: {
-            /** Uncoverable Features */
-            uncoverable_features?: string[];
-            /** Min Cost For Must Haves Paise */
-            min_cost_for_must_haves_paise?: number | null;
-            /** Shortfall Paise */
-            shortfall_paise?: number | null;
-            /** Max Must Haves Within Budget */
-            max_must_haves_within_budget?: number | null;
-            /** Message */
-            message: string;
+            /** Llm */
+            llm: {
+                [key: string]: unknown;
+            };
+            /**
+             * Search
+             * @enum {string}
+             */
+            search: "enabled" | "disabled";
+            /**
+             * Playwright
+             * @enum {string}
+             */
+            playwright: "enabled" | "disabled";
         };
         /** LoginIn */
         LoginIn: {
@@ -639,7 +756,7 @@ export interface components {
         /** MeOut */
         MeOut: {
             user: components["schemas"]["UserOut"];
-            profile: components["schemas"]["ProfileOut"] | null;
+            profile: components["schemas"]["ProfileOut"];
         };
         /** MemoryItemOut */
         MemoryItemOut: {
@@ -683,154 +800,171 @@ export interface components {
              */
             display: string;
         };
-        /**
-         * ObservationStatus
-         * @enum {string}
-         */
-        ObservationStatus: "verified" | "partial" | "unverified" | "conflict";
-        /** OptimizationResult */
-        OptimizationResult: {
-            /** Status */
-            status: string;
-            best?: components["schemas"]["Portfolio"] | null;
-            /** Alternatives */
-            alternatives?: components["schemas"]["Portfolio"][];
-            /**
-             * Current Monthly Paise
-             * @description Amount in paise (₹1 = 100).
-             * @default 0
-             */
-            current_monthly_paise: number;
-            /** Overlaps */
-            overlaps?: {
-                [key: string]: string[];
-            };
-            /** Rejected */
-            rejected?: components["schemas"]["RejectedCandidate"][];
-            diagnosis?: components["schemas"]["InfeasibilityDiagnosis"] | null;
-            /**
-             * Solver
-             * @default CBC
-             */
-            solver: string;
-            /**
-             * Solve Ms
-             * @default 0
-             */
-            solve_ms: number;
-        };
-        /**
-         * OptimizeMode
-         * @enum {string}
-         */
-        OptimizeMode: "best" | "balanced" | "savings";
-        /** Page[RunOut] */
-        Page_RunOut_: {
-            /** Items */
-            items: components["schemas"]["RunOut"][];
-            /** Next Cursor */
-            next_cursor?: string | null;
-        };
-        /** PendingInterrupt */
-        PendingInterrupt: {
-            /** Kind */
-            kind: string;
-            /** Payload */
-            payload: {
-                [key: string]: unknown;
-            };
-        };
         /** PlanPriceOut */
         PlanPriceOut: {
+            /** Plan Id */
+            plan_id: string;
+            /** Provider Id */
+            provider_id: string;
+            /** Provider Name */
+            provider_name: string;
+            /** Plan Name */
+            plan_name: string;
+            /** Billing Cycle */
+            billing_cycle: number;
             price: components["schemas"]["Money"];
-            status: components["schemas"]["ObservationStatus"];
-            freshness: components["schemas"]["Freshness"];
-            /** Age Days */
-            age_days: number;
-            /** Source Url */
-            source_url: string | null;
+            monthly: components["schemas"]["Money"];
+            annual: components["schemas"]["Money"];
+            /** Status */
+            status: string;
+            /** Label */
+            label: string;
             /**
              * Observed At
              * Format: date-time
              */
             observed_at: string;
+            /** Age Days */
+            age_days: number;
+            /** Source Url */
+            source_url: string | null;
+            /** Evidence */
+            evidence: string;
+            /** Features */
+            features: {
+                [key: string]: string;
+            };
+            /** Intro */
+            intro?: {
+                [key: string]: unknown;
+            } | null;
         };
-        /** Portfolio */
-        Portfolio: {
-            /** Plan Ids */
-            plan_ids: string[];
+        /** PriceHistoryPoint */
+        PriceHistoryPoint: {
             /**
-             * Monthly Paise
-             * @description Amount in paise (₹1 = 100).
+             * Observed At
+             * Format: date-time
              */
-            monthly_paise: number;
-            /** Score */
-            score: number;
-            /** Covered Features */
-            covered_features: string[];
-            /** Missing Nice To Have */
-            missing_nice_to_have: string[];
+            observed_at: string;
+            price: components["schemas"]["Money"];
+            /** Kind */
+            kind: string;
+            /** Status */
+            status: string;
+            /** Evidence */
+            evidence: string;
         };
         /** PriceRefreshIn */
         PriceRefreshIn: {
-            /** Plan Ids */
-            plan_ids?: string[] | null;
+            /** Provider Ids */
+            provider_ids?: string[] | null;
         };
         /** ProfileIn */
         ProfileIn: {
-            /** Monthly Budget Paise */
-            monthly_budget_paise?: number | null;
             /**
              * Country
              * @default IN
+             * @constant
              */
-            country: string;
+            country: "IN";
+            /**
+             * Currency
+             * @default INR
+             * @constant
+             */
+            currency: "INR";
+            /** Budget Paise */
+            budget_paise?: number | null;
+            /**
+             * Budget Period
+             * @default monthly
+             * @enum {string}
+             */
+            budget_period: "monthly" | "annual";
             /**
              * Billing Preference
              * @default any
+             * @enum {string}
              */
-            billing_preference: string;
+            billing_preference: "monthly" | "annual" | "any";
             /**
              * Ads Tolerance
              * @default ok
+             * @enum {string}
              */
-            ads_tolerance: string;
+            ads_tolerance: "ok" | "avoid" | "never";
+            /**
+             * Allow Cached Prices
+             * @default true
+             */
+            allow_cached_prices: boolean;
+            /**
+             * Allow Partial Prices
+             * @default false
+             */
+            allow_partial_prices: boolean;
             /**
              * Allow Unverified Prices
              * @default false
              */
             allow_unverified_prices: boolean;
             /** Eligibility */
-            eligibility?: string[];
+            eligibility?: components["schemas"]["Eligibility"][];
         };
         /** ProfileOut */
         ProfileOut: {
-            /** Monthly Budget Paise */
-            monthly_budget_paise?: number | null;
             /**
              * Country
              * @default IN
+             * @constant
              */
-            country: string;
+            country: "IN";
+            /**
+             * Currency
+             * @default INR
+             * @constant
+             */
+            currency: "INR";
+            /** Budget Paise */
+            budget_paise?: number | null;
+            /**
+             * Budget Period
+             * @default monthly
+             * @enum {string}
+             */
+            budget_period: "monthly" | "annual";
             /**
              * Billing Preference
              * @default any
+             * @enum {string}
              */
-            billing_preference: string;
+            billing_preference: "monthly" | "annual" | "any";
             /**
              * Ads Tolerance
              * @default ok
+             * @enum {string}
              */
-            ads_tolerance: string;
+            ads_tolerance: "ok" | "avoid" | "never";
+            /**
+             * Allow Cached Prices
+             * @default true
+             */
+            allow_cached_prices: boolean;
+            /**
+             * Allow Partial Prices
+             * @default false
+             */
+            allow_partial_prices: boolean;
             /**
              * Allow Unverified Prices
              * @default false
              */
             allow_unverified_prices: boolean;
             /** Eligibility */
-            eligibility?: string[];
+            eligibility?: components["schemas"]["Eligibility"][];
             /** User Id */
             user_id: string;
+            monthly_budget?: components["schemas"]["Money"] | null;
         };
         /** ProviderOut */
         ProviderOut: {
@@ -839,8 +973,26 @@ export interface components {
             /** Name */
             name: string;
             category: components["schemas"]["Category"];
-            /** Official Domains */
-            official_domains: string[];
+            /** Pricing Url */
+            pricing_url: string;
+            /** Needs Js */
+            needs_js: boolean;
+            latest_attempt: components["schemas"]["AttemptOut"] | null;
+        };
+        /** RefreshOut */
+        RefreshOut: {
+            /** Provider Id */
+            provider_id: string;
+            /** Outcome */
+            outcome: string;
+            /** Prices Found */
+            prices_found: number;
+            /** Verified */
+            verified: number;
+            /** Error */
+            error: string | null;
+            /** Warnings */
+            warnings: string[];
         };
         /** RegisterIn */
         RegisterIn: {
@@ -857,13 +1009,6 @@ export interface components {
             /** Display Name */
             display_name: string;
         };
-        /** RejectedCandidate */
-        RejectedCandidate: {
-            /** Plan Id */
-            plan_id: string;
-            /** Reason */
-            reason: string;
-        };
         /** ReportOut */
         ReportOut: {
             /** Id */
@@ -872,12 +1017,22 @@ export interface components {
             run_id: string;
             /** Version */
             version: number;
+            /** Status */
+            status: string;
             /** Markdown */
             markdown: string;
-            generated_by: components["schemas"]["ReportSource"];
+            /** Generated By */
+            generated_by: string;
             current_monthly: components["schemas"]["Money"];
-            recommended_monthly: components["schemas"]["Money"];
-            result: components["schemas"]["OptimizationResult"];
+            recommended_monthly: components["schemas"]["Money"] | null;
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            };
+            /** Facts */
+            facts: {
+                [key: string]: unknown;
+            };
             /** Evidence */
             evidence: components["schemas"]["EvidenceOut"][];
             /**
@@ -886,11 +1041,6 @@ export interface components {
              */
             created_at: string;
         };
-        /**
-         * ReportSource
-         * @enum {string}
-         */
-        ReportSource: "llm" | "template";
         /** RequirementsIO */
         RequirementsIO: {
             /** Requirements */
@@ -899,18 +1049,37 @@ export interface components {
         /** RunCreateIn */
         RunCreateIn: {
             /** Thread Id */
-            thread_id: string;
+            thread_id?: string | null;
             /** Message */
             message: string;
-            /** @default best */
-            mode: components["schemas"]["OptimizeMode"];
+            /**
+             * Mode
+             * @default auto
+             * @enum {string}
+             */
+            mode: "auto" | "savings" | "balanced" | "best";
         };
-        /** RunCreatedOut */
-        RunCreatedOut: {
-            /** Run Id */
-            run_id: string;
-            /** @default queued */
-            status: components["schemas"]["RunStatus"];
+        /** RunEventOut */
+        RunEventOut: {
+            /** Seq */
+            seq: number;
+            /** Node */
+            node: string | null;
+            /** Event Type */
+            event_type: string;
+            /** Message */
+            message: string;
+            /** Payload */
+            payload?: {
+                [key: string]: unknown;
+            };
+            /** Duration Ms */
+            duration_ms?: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** RunOut */
         RunOut: {
@@ -919,10 +1088,21 @@ export interface components {
             /** Thread Id */
             thread_id: string;
             status: components["schemas"]["RunStatus"];
+            /** Request Message */
+            request_message: string;
+            /** Mode */
+            mode: string;
             /** Revision */
             revision: number;
             /** Error Code */
             error_code?: string | null;
+            /** Error Message */
+            error_message?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
             /** Started At */
             started_at?: string | null;
             /** Ended At */
@@ -931,15 +1111,37 @@ export interface components {
             llm_model?: string | null;
             /** Latest Report Id */
             latest_report_id?: string | null;
-            pending_interrupt?: components["schemas"]["PendingInterrupt"] | null;
+            /** Latest Report Status */
+            latest_report_status?: string | null;
+            recommended_monthly?: components["schemas"]["Money"] | null;
+            current_monthly?: components["schemas"]["Money"] | null;
+            /** Pending Interrupt */
+            pending_interrupt?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Resumable
+             * @default false
+             */
+            resumable: boolean;
         };
         /**
          * RunStatus
          * @enum {string}
          */
         RunStatus: "queued" | "running" | "waiting_clarification" | "waiting_approval" | "completed" | "failed" | "cancelled";
+        /** SpendSlice */
+        SpendSlice: {
+            /** Name */
+            name: string;
+            /** Category */
+            category: string | null;
+            monthly: components["schemas"]["Money"];
+        };
         /** SubscriptionIn */
         SubscriptionIn: {
+            /** Provider Id */
+            provider_id?: string | null;
             /** Plan Id */
             plan_id?: string | null;
             /** Custom Name */
@@ -966,23 +1168,36 @@ export interface components {
         SubscriptionOut: {
             /** Id */
             id: string;
+            /** Provider Id */
+            provider_id: string | null;
+            /** Provider Name */
+            provider_name: string | null;
             /** Plan Id */
             plan_id: string | null;
             /** Display Name */
             display_name: string;
+            /** Category */
+            category: string | null;
             price: components["schemas"]["Money"];
             billing_cycle: components["schemas"]["BillingCycle"];
             monthly_equivalent: components["schemas"]["Money"];
+            annual_cost: components["schemas"]["Money"];
             /** Renewal Date */
             renewal_date: string | null;
+            /** Days To Renewal */
+            days_to_renewal: number | null;
             usage_frequency: components["schemas"]["UsageFrequency"];
             /** Is Mandatory */
             is_mandatory: boolean;
+            /** Notes */
+            notes: string | null;
             /** Active */
             active: boolean;
         };
         /** SubscriptionPatch */
         SubscriptionPatch: {
+            /** Plan Id */
+            plan_id?: string | null;
             /** Price Paise */
             price_paise?: number | null;
             billing_cycle?: components["schemas"]["BillingCycle"] | null;
@@ -1639,6 +1854,62 @@ export interface operations {
             };
         };
     };
+    list_features_api_v1_features_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeatureDefOut"][];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found (also used for other users' data) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not implemented yet (Phase 1 stub) */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     list_subscriptions_api_v1_subscriptions_get: {
         parameters: {
             query?: never;
@@ -1932,7 +2203,7 @@ export interface operations {
     list_plans_api_v1_catalog_plans_get: {
         parameters: {
             query?: {
-                category?: components["schemas"]["Category"] | null;
+                provider_id?: string | null;
             };
             header?: never;
             path?: never;
@@ -1946,7 +2217,295 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CatalogPlanOut"][];
+                    "application/json": components["schemas"]["PlanPriceOut"][];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found (also used for other users' data) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not implemented yet (Phase 1 stub) */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_prices_api_v1_prices_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanPriceOut"][];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found (also used for other users' data) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not implemented yet (Phase 1 stub) */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    price_history_api_v1_prices__plan_id__history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceHistoryPoint"][];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found (also used for other users' data) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not implemented yet (Phase 1 stub) */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    refresh_prices_api_v1_prices_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceRefreshIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefreshOut"][];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found (also used for other users' data) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not implemented yet (Phase 1 stub) */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_attempts_api_v1_prices_attempts_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttemptOut"][];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found (also used for other users' data) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not implemented yet (Phase 1 stub) */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_threads_api_v1_threads_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThreadOut"][];
                 };
             };
             /** @description Not signed in */
@@ -2108,9 +2667,7 @@ export interface operations {
     list_runs_api_v1_runs_get: {
         parameters: {
             query?: {
-                status?: components["schemas"]["RunStatus"] | null;
                 limit?: number;
-                cursor?: string | null;
             };
             header?: never;
             path?: never;
@@ -2124,7 +2681,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Page_RunOut_"];
+                    "application/json": components["schemas"]["RunOut"][];
                 };
             };
             /** @description Not signed in */
@@ -2184,7 +2741,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RunCreatedOut"];
+                    "application/json": components["schemas"]["RunOut"];
                 };
             };
             /** @description Not signed in */
@@ -2243,6 +2800,66 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RunOut"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found (also used for other users' data) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not implemented yet (Phase 1 stub) */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_events_api_v1_runs__run_id__events_list_get: {
+        parameters: {
+            query?: {
+                after_seq?: number;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunEventOut"][];
                 };
             };
             /** @description Not signed in */
@@ -2526,6 +3143,122 @@ export interface operations {
             };
         };
     };
+    resume_run_api_v1_runs__run_id__resume_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Accepted"];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found (also used for other users' data) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not implemented yet (Phase 1 stub) */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    run_reports_api_v1_runs__run_id__reports_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportOut"][];
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not found (also used for other users' data) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not implemented yet (Phase 1 stub) */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_report_api_v1_reports__report_id__get: {
         parameters: {
             query?: never;
@@ -2544,180 +3277,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReportOut"];
-                };
-            };
-            /** @description Not signed in */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not found (also used for other users' data) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not implemented yet (Phase 1 stub) */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    list_prices_api_v1_prices_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlanPriceOut"][];
-                };
-            };
-            /** @description Not signed in */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not found (also used for other users' data) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not implemented yet (Phase 1 stub) */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    price_history_api_v1_prices__plan_id__history_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                plan_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PlanPriceOut"][];
-                };
-            };
-            /** @description Not signed in */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not found (also used for other users' data) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-            /** @description Not implemented yet (Phase 1 stub) */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
-                };
-            };
-        };
-    };
-    refresh_prices_api_v1_prices_refresh_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PriceRefreshIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Accepted"];
                 };
             };
             /** @description Not signed in */
