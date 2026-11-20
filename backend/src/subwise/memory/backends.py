@@ -1,31 +1,19 @@
-"""The only place that opens LangGraph's SQLite checkpointer and store (blueprint F). M9.
+"""The only place that opens LangGraph's SQLite checkpointer and store (blueprint F).
 
 Verified against langgraph==1.2.24 + langgraph-checkpoint-sqlite==3.1.3
-(see tests/integration/test_library_contracts.py and docs/verified-apis.md):
-
-  from langgraph.checkpoint.sqlite import SqliteSaver
-  from langgraph.store.sqlite import SqliteStore
-
-  # long-lived (worker thread): pass a connection opened with check_same_thread=False
-  conn = sqlite3.connect(path, check_same_thread=False); saver = SqliteSaver(conn)
-  # short-lived / scripts: context managers
-  with SqliteSaver.from_conn_string(path) as saver: ...
-  with SqliteStore.from_conn_string(path) as store:
-      store.setup()                                   # creates tables; idempotent
-      store.put(("users", user_id, kind), key, {...})
-      store.get(ns, key) -> Item | None ; store.search(("users", user_id)) ; store.delete(ns, key)
-
-Ruff bans importing SqliteSaver/SqliteStore anywhere else (TID251).
+(tests/integration/test_library_contracts.py, docs/verified-apis.md).
 """
 
 from __future__ import annotations
 
+import sqlite3
+import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any
 
-from subwise.errors import NotImplementedYet
+from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.store.sqlite import SqliteStore
 
 STORE_ROOT = "users"
 """Long-term memory namespace = (STORE_ROOT, user_id, kind)."""
@@ -37,15 +25,34 @@ def store_namespace(user_id: str, kind: str) -> tuple[str, str, str]:
     return (STORE_ROOT, user_id, kind)
 
 
-@contextmanager
-def open_checkpointer(path: Path) -> Iterator[Any]:
-    """Yield a SqliteSaver for ``path`` (M9)."""
-    raise NotImplementedYet("M9", "open_checkpointer")
-    yield  # pragma: no cover
+class Checkpointer:
+    """Long-lived SqliteSaver shared by the worker thread (one connection,
+    check_same_thread off)."""
+
+    def __init__(self, path: Path) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self._conn = sqlite3.connect(path, check_same_thread=False)
+        self.saver = SqliteSaver(self._conn)
+
+    def close(self) -> None:
+        self._conn.close()
 
 
-@contextmanager
-def open_store(path: Path) -> Iterator[Any]:
-    """Yield a set-up SqliteStore for ``path`` (M9)."""
-    raise NotImplementedYet("M9", "open_store")
-    yield  # pragma: no cover
+class Store:
+    """Thread-safe wrapper over SqliteStore (API requests and the worker both use it)."""
+
+    def __init__(self, path: Path) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self._conn = sqlite3.connect(path, check_same_thread=False, isolation_level=None)
+        self._lock = threading.Lock()
+        self.store = SqliteStore(self._conn)
+        with self._lock:
+            self.store.setup()
+
+    @contextmanager
+    def locked(self) -> Iterator[SqliteStore]:
+        with self._lock:
+            yield self.store
+
+    def close(self) -> None:
+        self._conn.close()

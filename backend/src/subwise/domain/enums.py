@@ -100,6 +100,8 @@ class BindingMethod(StrEnum):
     SAME_TEXT_WINDOW = "same_text_window"
     ADJACENT_TOKEN = "adjacent_token"
     URL_LOCALE = "url_locale"
+    TABLE_CELL = "table_cell"
+    PAGE_STATEMENT = "page_statement"
     MANUAL = "manual"
     UNBOUND = "unbound"
 

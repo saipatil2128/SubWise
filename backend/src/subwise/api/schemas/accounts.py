@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import AwareDatetime, BaseModel, EmailStr, Field, SecretStr
 
+from subwise.api.schemas.common import Money
 from subwise.core.money import Paise
-from subwise.domain.enums import FeatureLevel
+from subwise.domain.enums import Eligibility, FeatureLevel
 
 
 class RegisterIn(BaseModel):
@@ -29,21 +30,26 @@ class UserOut(BaseModel):
 
 
 class ProfileIn(BaseModel):
-    monthly_budget_paise: Paise | None = None
-    country: str = Field(default="IN", min_length=2, max_length=2)
-    billing_preference: str = Field(default="any", pattern=r"^(monthly|annual|any)$")
-    ads_tolerance: str = Field(default="ok", pattern=r"^(ok|avoid|never)$")
+    country: Literal["IN"] = "IN"
+    currency: Literal["INR"] = "INR"
+    budget_paise: Paise | None = None
+    budget_period: Literal["monthly", "annual"] = "monthly"
+    billing_preference: Literal["monthly", "annual", "any"] = "any"
+    ads_tolerance: Literal["ok", "avoid", "never"] = "ok"
+    allow_cached_prices: bool = True
+    allow_partial_prices: bool = False
     allow_unverified_prices: bool = False
-    eligibility: list[str] = Field(default_factory=list)  # e.g. ["student"]
+    eligibility: list[Eligibility] = Field(default_factory=list)
 
 
 class ProfileOut(ProfileIn):
     user_id: str
+    monthly_budget: Money | None = None
 
 
 class MeOut(BaseModel):
     user: UserOut
-    profile: ProfileOut | None
+    profile: ProfileOut
 
 
 class FeatureRequirement(BaseModel):
@@ -54,6 +60,13 @@ class FeatureRequirement(BaseModel):
 
 class RequirementsIO(BaseModel):
     requirements: list[FeatureRequirement]
+
+
+class FeatureDefOut(BaseModel):
+    code: str
+    label: str
+    category: str | None
+    description: str
 
 
 class MemoryItemOut(BaseModel):

@@ -1,25 +1,21 @@
-"""Subscription and catalog schemas (blueprint I.2)."""
+"""Subscription, catalog and price schemas (blueprint I.2)."""
 
 from __future__ import annotations
 
 from datetime import date
+from typing import Any
 
 from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
 from subwise.api.schemas.common import Money
 from subwise.core.money import Paise
-from subwise.domain.enums import (
-    BillingCycle,
-    Category,
-    Freshness,
-    ObservationStatus,
-    UsageFrequency,
-)
+from subwise.domain.enums import BillingCycle, Category, UsageFrequency
 
 
 class SubscriptionIn(BaseModel):
+    provider_id: str | None = None
     plan_id: str | None = None
-    custom_name: str | None = Field(default=None, max_length=80)
+    custom_name: str | None = Field(default=None, min_length=1, max_length=80)
     price_paise: Paise
     billing_cycle: BillingCycle
     renewal_date: date | None = None
@@ -28,13 +24,15 @@ class SubscriptionIn(BaseModel):
     notes: str | None = Field(default=None, max_length=500)
 
     @model_validator(mode="after")
-    def _plan_or_custom(self) -> SubscriptionIn:
-        if (self.plan_id is None) == (self.custom_name is None):
-            raise ValueError("Provide exactly one of plan_id or custom_name.")
+    def _source(self) -> SubscriptionIn:
+        catalog = self.provider_id is not None or self.plan_id is not None
+        if catalog == (self.custom_name is not None):
+            raise ValueError("Choose a provider/plan from the catalog OR give a custom name.")
         return self
 
 
 class SubscriptionPatch(BaseModel):
+    plan_id: str | None = None
     price_paise: Paise | None = None
     billing_cycle: BillingCycle | None = None
     renewal_date: date | None = None
@@ -46,41 +44,78 @@ class SubscriptionPatch(BaseModel):
 
 class SubscriptionOut(BaseModel):
     id: str
+    provider_id: str | None
+    provider_name: str | None
     plan_id: str | None
     display_name: str
+    category: str | None
     price: Money
     billing_cycle: BillingCycle
     monthly_equivalent: Money
+    annual_cost: Money
     renewal_date: date | None
+    days_to_renewal: int | None
     usage_frequency: UsageFrequency
     is_mandatory: bool
+    notes: str | None
     active: bool
 
 
-class PlanPriceOut(BaseModel):
-    price: Money
-    status: ObservationStatus
-    freshness: Freshness
-    age_days: int
-    source_url: str | None
-    observed_at: AwareDatetime
-
-
-class CatalogPlanOut(BaseModel):
-    id: str
+class AttemptOut(BaseModel):
     provider_id: str
-    provider_name: str
-    service_line_id: str
-    name: str
-    category: Category
-    billing_cycle: BillingCycle
-    is_bundle: bool
-    exclusion_group: str
-    current_price: PlanPriceOut | None
+    url: str
+    outcome: str
+    error: str | None
+    started_at: AwareDatetime
+    finished_at: AwareDatetime | None
+    prices_found: int
+    verified_found: int
+    warnings: list[str]
 
 
 class ProviderOut(BaseModel):
     id: str
     name: str
     category: Category
-    official_domains: list[str]
+    pricing_url: str
+    needs_js: bool
+    latest_attempt: AttemptOut | None
+
+
+class PlanPriceOut(BaseModel):
+    plan_id: str
+    provider_id: str
+    provider_name: str
+    plan_name: str
+    billing_cycle: int
+    price: Money
+    monthly: Money
+    status: str
+    label: str
+    observed_at: AwareDatetime
+    age_days: int
+    source_url: str | None
+    evidence: str
+    features: dict[str, str]
+    intro: dict[str, Any] | None = None
+
+
+class PriceHistoryPoint(BaseModel):
+    observed_at: AwareDatetime
+    price: Money
+    kind: str
+    status: str
+    evidence: str
+
+
+class PriceRefreshIn(BaseModel):
+    provider_ids: list[str] | None = None
+
+
+class RefreshOut(BaseModel):
+    provider_id: str
+    outcome: str
+    prices_found: int
+    verified: int
+    error: str | None
+    warnings: list[str]

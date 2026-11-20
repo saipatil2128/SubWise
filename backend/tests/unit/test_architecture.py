@@ -11,9 +11,20 @@ PKG = Path(__file__).resolve().parents[2] / "src" / "subwise"
 
 PURE_DIRS = ("core", "domain")
 FORBIDDEN_IN_PURE = {
-    "fastapi", "starlette", "httpx", "requests", "sqlalchemy", "ollama", "langgraph",
-    "langchain", "langchain_core", "bs4", "playwright", "tavily", "sse_starlette",
-}  # fmt: skip
+    "fastapi",
+    "starlette",
+    "httpx",
+    "requests",
+    "sqlalchemy",
+    "ollama",
+    "langgraph",
+    "langchain",
+    "langchain_core",
+    "bs4",
+    "playwright",
+    "tavily",
+    "sse_starlette",
+}
 
 
 def _imports(path: Path) -> set[str]:

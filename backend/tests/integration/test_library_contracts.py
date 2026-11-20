@@ -101,8 +101,11 @@ def test_resume_in_a_fresh_process_after_restart(tmp_path: Path) -> None:
     script.write_text(RESUME_SCRIPT, encoding="utf-8")
     result = subprocess.run(
         [sys.executable, str(script), str(db), str(Path(__file__).parent)],
-        capture_output=True, text=True, timeout=120, check=False,
-    )  # fmt: skip
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
     assert result.returncode == 0, result.stderr
     assert "RESUMED_OK" in result.stdout
 
@@ -156,9 +159,12 @@ def test_store_survives_new_process_and_is_isolated_per_user(tmp_path: Path) -> 
     script = tmp_path / "read.py"
     script.write_text(STORE_READ_SCRIPT, encoding="utf-8")
     result = subprocess.run(
-        [sys.executable, str(script), str(db)], capture_output=True, text=True, timeout=60,
+        [sys.executable, str(script), str(db)],
+        capture_output=True,
+        text=True,
+        timeout=60,
         check=False,
-    )  # fmt: skip
+    )
     assert result.returncode == 0, result.stderr
     assert "STORE_OK" in result.stdout
 

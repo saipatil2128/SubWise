@@ -18,7 +18,13 @@ class SearchProvider(Protocol):
     name: str
     enabled: bool
 
-    def search(self, query: str, *, country: str, max_results: int = 5) -> list[SearchHit]:
-        """Return candidate URLs. Hits are *candidates* only; nothing extracted from a hit on
-        an unknown domain can exceed status ``unverified``."""
+    def search(
+        self,
+        query: str,
+        *,
+        country: str,
+        max_results: int = 5,
+        include_domains: list[str] | None = None,
+    ) -> list[SearchHit]:
+        """Return candidate URLs. Callers must still check the domain is official."""
         ...

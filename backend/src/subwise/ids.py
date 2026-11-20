@@ -6,7 +6,7 @@ from typing import Literal
 
 from ulid import ULID
 
-IdPrefix = Literal["usr", "thr", "run", "rep", "sub", "obs", "doc", "evt", "dec"]
+IdPrefix = Literal["usr", "thr", "run", "rep", "sub", "obs", "doc", "evt", "dec", "att", "msg"]
 
 
 def new_id(prefix: IdPrefix) -> str:

@@ -9,5 +9,12 @@ class NullSearchProvider:
     name = "null"
     enabled = False
 
-    def search(self, query: str, *, country: str, max_results: int = 5) -> list[SearchHit]:
+    def search(
+        self,
+        query: str,
+        *,
+        country: str,
+        max_results: int = 5,
+        include_domains: list[str] | None = None,
+    ) -> list[SearchHit]:
         return []

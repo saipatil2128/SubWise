@@ -9,20 +9,22 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+if config.config_file_name is not None and config.attributes.get("configure_logger", True):
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from subwise.config import get_settings  # noqa: E402
+from subwise.db import models  # noqa: E402,F401  (registers every table)
 from subwise.db.base import Base  # noqa: E402
 
 # M2 imports every model module here so autogenerate sees all tables.
 target_metadata = Base.metadata
-config.set_main_option("sqlalchemy.url", get_settings().database_url)
-get_settings().data_dir.mkdir(parents=True, exist_ok=True)
+if not config.get_main_option("sqlalchemy.url"):
+    config.set_main_option("sqlalchemy.url", get_settings().database_url)
+    get_settings().data_dir.mkdir(parents=True, exist_ok=True)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

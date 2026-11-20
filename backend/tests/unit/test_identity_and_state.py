@@ -44,7 +44,7 @@ def test_store_namespace_is_per_user() -> None:
 def test_initial_state_has_zeroed_loop_counters() -> None:
     s = initial_state(run_id="run_1", user_id="usr_1", thread_id="thr_1", user_message="hi")
     assert (s["clarification_count"], s["research_round"], s["revision_count"]) == (0, 0, 0)
-    assert s["observations"] == [] and s["trace"] == []
+    assert s["trace"] == [] and s["mode"] == "balanced"
 
 
 def test_graph_node_inventory_matches_blueprint() -> None:

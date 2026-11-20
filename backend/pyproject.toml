@@ -52,7 +52,7 @@ dev = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-subwise = ["py.typed", "llm/prompts/*.md", "research/catalog_seed/*.yaml"]
+subwise = ["py.typed"]
 
 # ---------------------------------------------------------------- pytest
 [tool.pytest.ini_options]
@@ -87,7 +87,8 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "src/subwise/memory/backends.py" = ["TID251"]
-"tests/**" = ["TID251"]
+"tests/**" = ["TID251", "E501"]
+"alembic/versions/**" = ["E501", "W291"]
 
 # ---------------------------------------------------------------- mypy
 [tool.mypy]
@@ -98,5 +99,5 @@ mypy_path = "src"
 packages = ["subwise"]
 
 [[tool.mypy.overrides]]
-module = ["pulp.*", "tavily.*", "langgraph.*"]
+module = ["pulp.*", "tavily.*", "playwright.*"]
 ignore_missing_imports = true
