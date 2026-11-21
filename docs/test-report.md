@@ -66,7 +66,7 @@ report page → sign out → protected route redirects to login. No JavaScript e
 | --- | --- | --- |
 | Real provider websites | Unreachable (sandbox has no internet DNS) | `pytest -m live -rA` and **Plans & prices → Refresh all prices** |
 | Ollama + Qwen 2.5 3B | Not installed in the sandbox; LLM paths tested with a scripted fake | `ollama pull qwen2.5:3b`, then `pytest -m llm -rA` |
-| Playwright rendering of JS-only pricing pages (JioHotstar, Sony LIV, ZEE5, YouTube Premium) | Not exercised against real sites | `setup.ps1 -Browser`, `SUBWISE_PLAYWRIGHT_ENABLED=true`, refresh |
+| Playwright rendering of JS-only pricing pages (Sony LIV, YouTube Premium) | Not exercised against real sites | `setup.ps1 -Browser`, `SUBWISE_PLAYWRIGHT_ENABLED=true`, refresh |
 | Tavily search (optional) | Not configured | Optional; set `SUBWISE_TAVILY_API_KEY` |
 | Windows + PowerShell scripts | Not run (no Windows or PowerShell in the sandbox); `setup.ps1`, `dev.ps1`, `test.ps1` and the VS Code tasks were written for Windows PowerShell 5.1+ but not executed; CI matrix includes `windows-latest` | `.\scripts\setup.ps1`, `.\scripts\test.ps1 -E2E` |
 

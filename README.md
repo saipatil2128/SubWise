@@ -9,8 +9,9 @@ recommendation; rejections teach it your priorities.
 Everything runs on your own Windows PC: FastAPI + SQLite backend, React frontend, and a local
 language model (Qwen 2.5 3B through Ollama). No Docker, no WSL, no paid APIs.
 
-Providers: Netflix, Amazon Prime Video, JioHotstar, Sony LIV, ZEE5, Spotify, YouTube Premium,
-Apple Music.
+Providers: Netflix, Amazon Prime Video, Sony LIV, Spotify, YouTube Premium, Apple Music.
+JioHotstar and ZEE5 are not included: both refuse automated access to their pricing pages, and
+SubWise does not work around that. If you pay for one, add it as a subscription with your price.
 
 > **No prices are shipped with the app.** All plan prices come from live retrieval of the
 > providers' official pages on your machine. If a page can't be reached or parsed, SubWise says so
@@ -163,7 +164,7 @@ http://127.0.0.1:8000 — the backend serves the built UI.
 ### First use
 
 1. **Create an account.**
-2. **Plans & prices → Refresh all prices.** SubWise fetches all eight official pages (takes up to a
+2. **Plans & prices → Refresh all prices.** SubWise fetches all six official pages (takes up to a
    minute). Each provider shows whether it succeeded; failures show the reason.
 3. **Subscriptions → Add subscription** for each service you pay for, with the price **you** pay,
    how often you use it, and its renewal date.

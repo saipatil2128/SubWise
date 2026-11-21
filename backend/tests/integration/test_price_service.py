@@ -67,11 +67,11 @@ def test_robots_disallow_is_respected(container: Container, sites: SiteMap) -> N
 def test_js_page_without_browser_is_reported_as_needs_js(
     container: Container, sites: SiteMap
 ) -> None:
-    sites.pages["https://www.jiohotstar.com/subscribe"] = (
+    sites.pages["https://www.youtube.com/premium?gl=IN&hl=en-IN"] = (
         200,
         "<html><body><div id=root></div></body></html>",
     )
-    [r] = container.prices.refresh(["jiohotstar"])
+    [r] = container.prices.refresh(["youtube_premium"])
     assert r.outcome == "needs_js" and "Playwright" in (r.error or "")
 
 
@@ -102,4 +102,5 @@ def test_prices_api_exposes_labels_evidence_and_attempts(
     assert hist and hist[0]["evidence"]
     provs = {p["id"]: p for p in client.get(f"{API}/catalog/providers").json()}
     assert provs["apple_music"]["latest_attempt"]["outcome"] == "failed"
-    assert provs["zee5"]["latest_attempt"] is None
+    assert provs["sonyliv"]["latest_attempt"] is None
+    assert "jiohotstar" not in provs and "zee5" not in provs

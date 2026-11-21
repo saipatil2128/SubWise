@@ -103,10 +103,10 @@ def test_full_user_journey_in_browser(page: playwright_sync.Page) -> None:
     page.get_by_role("button", name="Create account").click()
     expect(page).to_have_url(re.compile(r"/app/subscriptions$"))
 
-    # Fetch prices (three synthetic provider pages succeed, the other five fail honestly)
+    # Fetch prices (three synthetic provider pages succeed, the other three fail honestly)
     page.get_by_role("link", name="Plans & prices").click()
     page.get_by_role("button", name="Refresh all prices").click()
-    expect(page.get_by_text(re.compile(r"Refreshed 8 providers: 3 succeeded"))).to_be_visible(
+    expect(page.get_by_text(re.compile(r"Refreshed 6 providers: 3 succeeded"))).to_be_visible(
         timeout=60_000
     )
     expect(page.get_by_text("Live · verified").first).to_be_visible()

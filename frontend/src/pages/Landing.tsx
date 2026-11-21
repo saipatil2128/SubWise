@@ -22,7 +22,7 @@ const STEPS = [
   },
 ];
 
-const PROVIDERS = ["Netflix", "Prime Video", "JioHotstar", "Sony LIV", "ZEE5", "Spotify", "YouTube Premium", "Apple Music"];
+const PROVIDERS = ["Netflix", "Prime Video", "Sony LIV", "Spotify", "YouTube Premium", "Apple Music"];
 
 export function LandingPage() {
   const me = useMe();

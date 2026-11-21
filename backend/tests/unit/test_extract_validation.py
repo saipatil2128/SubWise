@@ -218,3 +218,80 @@ def test_feature_detection_only_states_what_text_says() -> None:
     assert "live_sports" not in found  # not stated -> stays unknown
     with_ads = {f.code: f.value for f in detect_features("Mobile plan with ads", Category.VIDEO)}
     assert with_ads["ad_free_video"] == "no"
+
+
+def test_region_from_page_config_when_url_drops_the_locale() -> None:
+    from subwise.domain.enums import BindingMethod
+    from subwise.research.extract import bind_region
+    from subwise.research.registry import PROVIDERS_BY_ID
+
+    yt = PROVIDERS_BY_ID["youtube_premium"]
+    text = "Individual ₹149/month"
+    html_in = '<script>ytcfg.set({"GL":"IN","HL":"en-IN"})</script>'
+    bound = bind_region(yt, "https://www.youtube.com/premium", text, html_in)
+    assert bound.method is BindingMethod.PAGE_STATEMENT
+    # No region statement and no locale in the URL: stays unbound (never guessed).
+    unbound = bind_region(yt, "https://www.youtube.com/premium", text, "<html></html>")
+    assert unbound.method is BindingMethod.UNBOUND
+    # A page configured for another country is not India even if it shows the rupee sign.
+    other = bind_region(yt, "https://www.youtube.com/premium", text, '{"GL":"US"}')
+    assert other.method is BindingMethod.UNBOUND
+
+
+# --- Patterns observed on the real pages (2026-11-21). Synthetic HTML, written for the tests. ---
+
+
+def _bound(r):  # type: ignore[no-untyped-def]
+    return sorted(
+        (p.tier.key, p.cycle_months, p.price_kind.value, p.price_paise)
+        for p in r.prices
+        if p.fully_bound
+    )
+
+
+def test_zero_width_space_between_amount_and_period_and_free_trial_ignored() -> None:
+    html = """<html><body><script>ytcfg.set({"GL":"IN"})</script>
+    <div><h3>Individual</h3><p>Starts at ₹149.00​/month</p><p>Free trials with monthly plans</p></div>
+    <div><h3>Family</h3><p>Monthly ₹299.00​/month</p><p>1-month trial for ₹0</p></div>
+    <div><h3>Student</h3><p>Monthly ₹89.00​/month</p><p>1-month trial for ₹0</p></div>
+    </body></html>"""
+    r = extract_prices(get_provider("youtube_premium"), html, "https://www.youtube.com/premium")
+    assert _bound(r) == [
+        ("family", 1, "standard", 29900),
+        ("individual", 1, "standard", 14900),
+        ("student", 1, "standard", 8900),
+    ]
+    assert not r.warnings
+    assert all(p.price_paise > 0 for p in r.prices)
+
+
+def test_savings_equivalents_and_intro_after_are_not_plan_prices() -> None:
+    html = """<html><body>
+    <div><h3>Premium Standard</h3><p>₹99 for 3 months</p><p>₹139/month after</p></div>
+    <div><h3>Premium Standard</h3><p>Pay once in advance. ₹1,390 for 1 year</p>
+      <p>Equivalent to ₹115.84 per month</p><p>Save ₹278</p></div>
+    </body></html>"""
+    r = extract_prices(get_provider("spotify"), html, SPOTIFY_URL)
+    assert _bound(r) == [
+        ("standard", 1, "intro", 9900),
+        ("standard", 1, "renewal", 13900),
+        ("standard", 12, "standard", 139000),
+    ]
+    assert not any(p.price_paise in (11584, 27800) for p in r.prices)
+
+
+def test_amazon_shopping_edition_and_delivery_thresholds_are_excluded() -> None:
+    html = """<html><body>
+    <div><h3>Prime</h3><p>₹299 /month</p></div>
+    <div><h3>Prime</h3><p>₹1,499 /year</p></div>
+    <div><h3>Prime Lite</h3><p>₹799 /year</p></div>
+    <div><h3>Prime Shopping Edition</h3><p>₹399 /year</p></div>
+    <div><h3>Prime Delivery</h3><p>FREE delivery above ₹149</p><p>₹200 back above ₹1,499</p></div>
+    </body></html>"""
+    r = extract_prices(get_provider("amazon_prime"), html, "https://www.amazon.in/amazonprime")
+    assert _bound(r) == [
+        ("prime", 1, "standard", 29900),
+        ("prime", 12, "standard", 149900),
+        ("prime_lite", 12, "standard", 79900),
+    ]
+    assert not any(p.price_paise in (39900, 14900, 20000) for p in r.prices)

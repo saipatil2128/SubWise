@@ -8,13 +8,16 @@ optional extra is installed and ``SUBWISE_PLAYWRIGHT_ENABLED=true``.
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import importlib.util
+import io
 import ipaddress
 import logging
 import socket
 import time
 import urllib.robotparser
+import zlib
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -70,6 +73,41 @@ class FetchedPage:
     path: Path | None
 
 
+class _UndecodableBody(Exception):
+    """The response body could not be decompressed."""
+
+
+def _decode_body(raw: bytes, content_encoding: str) -> bytes:
+    """Decode a raw HTTP body. Tolerates multi-member gzip and multi-frame zstd."""
+    data = raw
+    # Encodings are listed in the order they were applied; undo them in reverse.
+    for enc in reversed([e.strip().lower() for e in content_encoding.split(",") if e.strip()]):
+        try:
+            if enc in ("gzip", "x-gzip"):
+                data = gzip.decompress(data)
+            elif enc == "deflate":
+                try:
+                    data = zlib.decompress(data)
+                except zlib.error:
+                    data = zlib.decompress(data, -zlib.MAX_WBITS)  # raw deflate
+            elif enc == "zstd":
+                import zstandard
+
+                reader = zstandard.ZstdDecompressor().stream_reader(
+                    io.BytesIO(data), read_across_frames=True
+                )
+                data = reader.read()
+            elif enc in ("identity", ""):
+                continue
+            else:
+                raise _UndecodableBody(f"unsupported content-encoding {enc!r}")
+        except _UndecodableBody:
+            raise
+        except Exception as exc:  # zlib.error, OSError, zstandard.ZstdError, ImportError
+            raise _UndecodableBody(f"{enc}: {exc}") from exc
+    return data
+
+
 class Fetcher:
     def __init__(
         self,
@@ -84,7 +122,16 @@ class Fetcher:
         self._client = client or httpx.Client(
             timeout=TIMEOUT,
             follow_redirects=True,
-            headers={"User-Agent": USER_AGENT, "Accept-Language": "en-IN,en;q=0.9"},
+            headers={
+                "User-Agent": USER_AGENT,
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-IN,en;q=0.9",
+                # Only encodings httpx decodes reliably. httpx also advertises zstd when the
+                # `zstandard` package is installed (it is, via langsmith); multi-frame zstd
+                # responses (e.g. help.netflix.com) then fail with "cannot use a decompressobj
+                # multiple times".
+                "Accept-Encoding": "gzip, deflate",
+            },
         )
         self._resolver = resolver
         self._playwright_enabled = playwright_enabled
@@ -120,22 +167,50 @@ class Fetcher:
 
     # ------------------------------------------------------------------ fetching
     def _get(self, url: str) -> httpx.Response:
+        try:
+            return self._get_once(url, accept_encoding=None)
+        except _UndecodableBody:
+            # Some servers send encodings or framings that fail to decode. Ask for the page
+            # uncompressed instead of failing the provider.
+            return self._get_once(url, accept_encoding="identity")
+
+    def _get_once(self, url: str, *, accept_encoding: str | None) -> httpx.Response:
         assert_public_http_url(url, self._resolver)
+        headers = {"Accept-Encoding": accept_encoding} if accept_encoding else None
         last: Exception | None = None
         for attempt in range(self._retries + 1):
             try:
-                with self._client.stream("GET", url) as resp:
-                    chunks: list[bytes] = []
-                    size = 0
-                    for chunk in resp.iter_bytes():
-                        size += len(chunk)
-                        if size > MAX_BYTES:
-                            raise FetchFailed(f"{url} is larger than {MAX_BYTES} bytes")
-                        chunks.append(chunk)
-                    body = b"".join(chunks)
+                with self._client.stream("GET", url, headers=headers) as resp:
+                    try:
+                        chunks: list[bytes] = []
+                        size = 0
+                        for chunk in resp.iter_raw():
+                            size += len(chunk)
+                            if size > MAX_BYTES:
+                                raise FetchFailed(f"{url} is larger than {MAX_BYTES} bytes")
+                            chunks.append(chunk)
+                        body = _decode_body(
+                            b"".join(chunks), resp.headers.get("content-encoding", "")
+                        )
+                    except httpx.StreamConsumed:
+                        # In-memory responses (e.g. from a transport that built the response
+                        # from bytes) were already read and decoded by httpx.
+                        body = resp.content
+                    if len(body) > MAX_BYTES:
+                        raise FetchFailed(f"{url} is larger than {MAX_BYTES} bytes when decoded")
+                    # The body is decoded now; drop the encoding headers so the rebuilt
+                    # response is not decoded a second time.
+                    out_headers = [
+                        (k, v)
+                        for k, v in resp.headers.multi_items()
+                        if k.lower()
+                        not in ("content-encoding", "content-length", "transfer-encoding")
+                    ]
                     out = httpx.Response(
-                        resp.status_code, headers=resp.headers, content=body, request=resp.request
+                        resp.status_code, headers=out_headers, content=body, request=resp.request
                     )
+                    if resp.history:
+                        out.history = list(resp.history)
                     if resp.status_code >= 500 and attempt < self._retries:
                         last = FetchFailed(f"HTTP {resp.status_code}")
                         time.sleep(1.5 * (attempt + 1))
@@ -146,6 +221,8 @@ class Fetcher:
                 if attempt < self._retries:
                     time.sleep(1.5 * (attempt + 1))
                     continue
+            except httpx.DecodingError as exc:
+                raise _UndecodableBody(str(exc)) from exc
         raise FetchFailed(f"Network error fetching {url}: {last}")
 
     def fetch(self, url: str, *, needs_js: bool = False) -> FetchedPage:

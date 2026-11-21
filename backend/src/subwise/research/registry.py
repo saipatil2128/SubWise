@@ -49,6 +49,11 @@ class ProviderDef:
     entitled_lines: tuple[str, ...] = ()
     """Extra service lines granted by every plan (bundles), e.g. Prime -> Prime Video, Music."""
     needs_js: bool = False
+    # Text right before a price that marks it as NOT one of this provider's plans.
+    non_plan_phrases: tuple[str, ...] = ()
+    # Regexes over the raw HTML that state the page's region when the final URL does not
+    # (e.g. YouTube drops ?gl=IN after rendering but its page config says "GL":"IN").
+    page_region_patterns: tuple[str, ...] = ()
     plan_prefixes: tuple[str, ...] = ()
     """Words that may precede a tier name in headings, e.g. 'Premium' in 'Premium Standard'."""
     page_cycle_phrases: tuple[tuple[str, int], ...] = ()
@@ -99,21 +104,9 @@ PROVIDERS: tuple[ProviderDef, ...] = (
         ),
         defining_features=frozenset({"movies", "tv_series"}),
         entitled_lines=("prime_video",),
+        # Prime Shopping Edition is a delivery-only membership without Prime Video.
+        non_plan_phrases=("Shopping Edition",),
         notes="Bundle: membership includes Prime Video. Music/delivery extracted when stated.",
-    ),
-    ProviderDef(
-        id="jiohotstar",
-        name="JioHotstar",
-        category=Category.VIDEO,
-        service_line_id="jiohotstar_streaming",
-        service_line_name="JioHotstar streaming",
-        official_domains=("jiohotstar.com", "hotstar.com"),
-        pricing_url="https://www.jiohotstar.com/subscribe",
-        region_markers=("jiohotstar.com",),
-        tiers=(_t("mobile", "Mobile"), _t("super", "Super"), _t("premium", "Premium")),
-        defining_features=frozenset({"movies", "tv_series"}),
-        needs_js=True,
-        notes="India-only service; pricing rendered with JavaScript.",
     ),
     ProviderDef(
         id="sonyliv",
@@ -127,23 +120,6 @@ PROVIDERS: tuple[ProviderDef, ...] = (
         tiers=(
             _t("mobile", "Mobile", "LIV Mobile", "Mobile Only"),
             _t("premium", "Premium", "LIV Premium"),
-        ),
-        defining_features=frozenset({"movies", "tv_series"}),
-        needs_js=True,
-    ),
-    ProviderDef(
-        id="zee5",
-        name="ZEE5",
-        category=Category.VIDEO,
-        service_line_id="zee5_streaming",
-        service_line_name="ZEE5 streaming",
-        official_domains=("zee5.com",),
-        pricing_url="https://www.zee5.com/myaccount/subscription",
-        region_markers=("zee5.com",),
-        tiers=(
-            _t("premium_hd", "Premium HD"),
-            _t("premium_4k", "Premium 4K"),
-            _t("premium", "Premium"),
         ),
         defining_features=frozenset({"movies", "tv_series"}),
         needs_js=True,
@@ -178,6 +154,7 @@ PROVIDERS: tuple[ProviderDef, ...] = (
         official_domains=("youtube.com",),
         pricing_url="https://www.youtube.com/premium?gl=IN&hl=en-IN",
         region_markers=("gl=IN",),
+        page_region_patterns=(r'"(?:GL|gl)"\s*:\s*"IN"',),
         tiers=(
             _t("individual", "Individual"),
             _t("family", "Family"),

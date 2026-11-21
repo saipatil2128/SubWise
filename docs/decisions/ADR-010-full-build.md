@@ -47,6 +47,9 @@ ADR wins where they differ.
     and drives Chromium with Playwright. Provider pages are the synthetic test fixtures served via
     the test-only mock transport, so the test is deterministic and never presents fixture prices as
     real; it runs in a temporary data directory.
+12. **JioHotstar and ZEE5 removed (2026-11-21).** Run on Windows against the real sites, both refused
+    automated access even through a headless browser (redirect loop; HTTP 403). The registry now has six
+    providers; see `docs/data-sources.md`.
 11. **Phase 1 stubs removed:** `NotImplementedYet` / `NOT_IMPLEMENTED` no longer exist.
 
 ## Consequences

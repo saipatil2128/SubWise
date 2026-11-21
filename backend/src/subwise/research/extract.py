@@ -38,6 +38,14 @@ INTRO_RE = re.compile(
     r"(?P<runit>month|mo|year|yr|quarter)",
     re.I,
 )
+# "₹99 for 3 months ₹139/month after" (Spotify's plan cards)
+INTRO_AFTER_RE = re.compile(
+    _AMT
+    + r"\s+for\s+(?P<n>\d+|one|a)\s+(?P<unit>months?|years?)\W{0,3}\s*"
+    + _AMT.replace("(\\d", "(?P<r>\\d", 1)
+    + r"\s*(?:/|per|a|every)\s*(?P<runit>month|mo|year|yr|quarter)\s+(?:after|thereafter)\b",
+    re.I,
+)
 # "₹139 / month", "₹1,499 per year", "₹599 every 3 months", "₹149/quarter"
 PERIODIC_RE = re.compile(
     _AMT + r"\s*(?:/|per|a|every|for)\s*(?:(?P<n>\d+|one|a)\s+)?"
@@ -95,8 +103,27 @@ class ExtractionResult:
     warnings: list[str]
 
 
+# Zero-width characters some sites put between an amount and its period ("₹149.00\u200b/month").
+_INVISIBLE = dict.fromkeys(map(ord, "\u200b\u200c\u200d\u2060\ufeff\u00ad"), None)
+# Amounts that are not plan prices: savings, thresholds, cashback, per-month equivalents.
+_NOT_A_PRICE_BEFORE = re.compile(
+    r"(?:\bsave|\bsaving|\bsavings|equivalent to|equal to|\bunder|\babove|\bover|\bworth|"
+    r"\bup ?to|\bmin(?:imum)?\.?|\border(?:s)? of|\bget)\s*(?:of\s*)?$",
+    re.I,
+)
+_NOT_A_PRICE_AFTER = re.compile(r"^\s*\*?\s*(?:back|off|cashback|discount)\b", re.I)
+
+
 def normalise(text: str) -> str:
-    return _WS.sub(" ", text).strip()
+    return _WS.sub(" ", text.translate(_INVISIBLE)).strip()
+
+
+def _not_a_plan_price(provider: ProviderDef, block: str, start: int, end: int) -> bool:
+    before = block[max(0, start - 30) : start]
+    if _NOT_A_PRICE_BEFORE.search(before) or _NOT_A_PRICE_AFTER.match(block[end : end + 15]):
+        return True
+    context = block[max(0, start - 40) : start].lower()
+    return any(p.lower() in context for p in provider.non_plan_phrases)
 
 
 def _months(n_raw: str | None, unit: str) -> int | None:
@@ -305,6 +332,9 @@ def _parse_block(
         span: tuple[int, int],
         cyc_b: Binding,
     ) -> None:
+        if paise <= 0 or _not_a_plan_price(provider, block, *span):
+            consumed.append(span)  # e.g. "trial for ₹0", "Save ₹278", "above ₹149"
+            return
         snippet = _snippet(block, *span)
         cur_text = block[span[0] : span[0] + 4]
         results.append(
@@ -326,7 +356,10 @@ def _parse_block(
         )
         consumed.append(span)
 
-    for m in INTRO_RE.finditer(block):
+    intro_matches = [*INTRO_RE.finditer(block), *INTRO_AFTER_RE.finditer(block)]
+    for m in sorted(intro_matches, key=lambda x: x.start()):
+        if taken((m.start(), m.end())):
+            continue
         intro_months = _count_months(m.group("n"), m.group("unit"))
         renewal_cycle = _months(None, m.group("runit"))
         if intro_months is None or renewal_cycle is None:
@@ -409,7 +442,7 @@ def _table_prices(
             for idx, cell in enumerate(cells[1:], start=1):
                 text = _own_text(cell)
                 m = BARE_RE.search(text)
-                if not m or idx >= len(header):
+                if not m or idx >= len(header) or amount_to_paise(m.group(1)) <= 0:
                     continue
                 col_head = header[idx]
                 tier = _anchor_tier(provider, col_head) or _anchor_tier(provider, row_head)
@@ -459,8 +492,15 @@ def bind_provider(provider: ProviderDef, final_url: str) -> Binding:
     return Binding(BindingMethod.UNBOUND, host, "final URL is not an official domain")
 
 
-def bind_region(provider: ProviderDef, final_url: str, page_text: str) -> Binding:
+def bind_region(provider: ProviderDef, final_url: str, page_text: str, html: str = "") -> Binding:
     marker = next((m for m in provider.region_markers if m.lower() in final_url.lower()), None)
+    method = BindingMethod.URL_LOCALE
+    if marker is None:
+        for pattern in provider.page_region_patterns:
+            found = re.search(pattern, html)
+            if found:
+                marker, method = found.group(0), BindingMethod.PAGE_STATEMENT
+                break
     if marker is None:
         return Binding(BindingMethod.UNBOUND, final_url, "URL is not the India page")
     foreign = FOREIGN_CURRENCY_RE.search(page_text)
@@ -468,7 +508,7 @@ def bind_region(provider: ProviderDef, final_url: str, page_text: str) -> Bindin
         return Binding(BindingMethod.UNBOUND, foreign.group(0), "page shows another currency")
     if not BARE_RE.search(page_text):
         return Binding(BindingMethod.UNBOUND, None, "no INR amount on page")
-    return Binding(BindingMethod.URL_LOCALE, marker)
+    return Binding(method, marker)
 
 
 def extract_prices(provider: ProviderDef, html: str, final_url: str) -> ExtractionResult:
@@ -478,7 +518,7 @@ def extract_prices(provider: ProviderDef, html: str, final_url: str) -> Extracti
     page_text = normalise(soup.get_text(" ", strip=True))
     warnings: list[str] = []
     provider_b = bind_provider(provider, final_url)
-    region_b = bind_region(provider, final_url, page_text)
+    region_b = bind_region(provider, final_url, page_text, html)
     if region_b.method is BindingMethod.UNBOUND:
         warnings.append(f"region not bound: {region_b.note}")
 

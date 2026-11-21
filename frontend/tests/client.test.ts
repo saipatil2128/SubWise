@@ -43,7 +43,7 @@ describe("apiFetch", () => {
   it("encodes query parameters", async () => {
     const f = vi.fn().mockResolvedValue(new Response("[]", { status: 200 }));
     vi.stubGlobal("fetch", f);
-    await api.plans("jio hotstar");
-    expect(f.mock.calls[0]![0]).toBe("/api/v1/catalog/plans?provider_id=jio%20hotstar");
+    await api.plans("sony liv");
+    expect(f.mock.calls[0]![0]).toBe("/api/v1/catalog/plans?provider_id=sony%20liv");
   });
 });

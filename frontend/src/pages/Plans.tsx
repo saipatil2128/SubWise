@@ -118,7 +118,7 @@ export function PlansPage() {
         actions={<Button busy={refreshing === "all"} disabled={!!refreshing} onClick={() => refresh()}>Refresh all prices</Button>}
       />
       <ErrorNote error={refreshError} />
-      {refreshing === "all" && <div className="mb-4"><Notice>Fetching eight provider pages. This can take a minute; pages that need a browser take longer.</Notice></div>}
+      {refreshing === "all" && <div className="mb-4"><Notice>Fetching every provider's official page. This can take a minute; pages that need a browser take longer.</Notice></div>}
       {lastRefresh && !refreshing && (
         <div className="mb-4">
           <Notice tone={lastRefresh.every((r) => r.outcome === "success") ? "success" : "warn"}>
