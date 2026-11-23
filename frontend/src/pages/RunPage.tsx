@@ -8,7 +8,7 @@ import { ReportView } from "../components/ReportView";
 import { RunStatusBadge } from "../components/StatusBadge";
 import { Timeline } from "../components/Timeline";
 import { Button, Card, ErrorNote, Field, Input, Loading, Notice, PageHeader } from "../components/ui";
-import { keys, useFeatures, useRun, useRunReports } from "../hooks/queries";
+import { keys, useFeatureLabels, useFeatures, useRun, useRunReports } from "../hooks/queries";
 import { useRunEvents } from "../hooks/useRunEvents";
 import { formatDateTime } from "../lib/format";
 
@@ -83,7 +83,7 @@ function ApprovalPanel({ run, report, onSent }: { run: Run; report: Report; onSe
   };
 
   return (
-    <Card title="Your decision" className="border-indigo-200 ring-1 ring-indigo-100">
+    <Card title="Your decision" className="border-indigo-200 ring-1 ring-indigo-100 print:hidden">
       <p className="text-sm text-slate-600">
         Approving records this recommendation as your plan — SubWise does not subscribe or cancel anything for you. Rejecting with a reason makes it revise the recommendation{report.version > 1 ? ` (this is version ${report.version})` : ""}.
       </p>
@@ -132,6 +132,7 @@ export function RunPage() {
   const status = run.data?.status ?? "queued";
   const live = ACTIVE.has(status);
   const reports = useRunReports(runId);
+  const featureLabels = useFeatureLabels();
   const [actionError, setActionError] = useState<unknown>(null);
   const [busy, setBusy] = useState<"cancel" | "resume" | null>(null);
 
@@ -176,11 +177,11 @@ export function RunPage() {
         title="Optimization"
         subtitle={<span>“{r.request_message}” · started {formatDateTime(r.created_at)}{r.llm_model && ` · ${r.llm_model}`}</span>}
         actions={
-          <>
+          <span className="flex items-center gap-2 print:hidden">
             <RunStatusBadge status={r.status} />
             {r.status.startsWith("waiting") && <Button variant="secondary" busy={busy === "cancel"} onClick={() => act("cancel")}>Cancel run</Button>}
             {r.resumable && <Button busy={busy === "resume"} onClick={() => act("resume")}>Resume from checkpoint</Button>}
-          </>
+          </span>
         }
       />
       <ErrorNote error={actionError} />
@@ -194,12 +195,12 @@ export function RunPage() {
       )}
       {r.status === "cancelled" && <div className="mb-6"><Notice>This run was cancelled.</Notice></div>}
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3 print:block">
         <div className="space-y-6 lg:col-span-2">
           {r.status === "waiting_clarification" && <ClarifyForm run={r} onSent={afterAction} />}
           {r.status === "waiting_approval" && latest && <ApprovalPanel key={latest.id} run={r} report={latest} onSent={afterAction} />}
           {reports.data && reports.data.length > 1 && (
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-2 text-sm print:hidden">
               <span className="text-slate-500">Version:</span>
               {reports.data.map((rep) => (
                 <button key={rep.id} type="button" onClick={() => setShownVersion(rep.version)} className={`rounded-md px-2.5 py-1 text-xs font-medium ${shown?.id === rep.id ? "bg-indigo-600 text-white" : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"}`}>
@@ -208,7 +209,7 @@ export function RunPage() {
               ))}
             </div>
           )}
-          {shown ? <ReportView report={shown} /> : live ? <Card><Loading label="The agent is working — the report appears here when it is ready." /></Card> : !r.status.startsWith("waiting_clar") && <Card><p className="text-sm text-slate-500">No report was produced for this run.</p></Card>}
+          {shown ? <ReportView report={shown} featureLabels={featureLabels} /> : live ? <Card><Loading label="The agent is working — the report appears here when it is ready." /></Card> : !r.status.startsWith("waiting_clar") && <Card><p className="text-sm text-slate-500">No report was produced for this run.</p></Card>}
           {r.status === "completed" && latest && (
             <Notice tone={latest.status === "approved" ? "success" : "info"}>
               {latest.status === "approved" ? "You approved this recommendation. Make the changes with each provider, then update your subscriptions here." : "This run finished."}{" "}
@@ -216,7 +217,7 @@ export function RunPage() {
             </Notice>
           )}
         </div>
-        <div>
+        <div className="print:hidden">
           <Card title="Agent timeline" className="lg:sticky lg:top-6">
             <div className="max-h-[70vh] overflow-y-auto pr-1">
               <Timeline events={events} live={live} />

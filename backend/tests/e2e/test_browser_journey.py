@@ -158,7 +158,7 @@ def test_full_user_journey_in_browser(page: playwright_sync.Page) -> None:
     )
     page.get_by_role("button", name="Start optimization").click()
     expect(page).to_have_url(re.compile(r"/app/runs/run_"))
-    expect(page.get_by_text("Your decision")).to_be_visible(timeout=60_000)
+    expect(page.get_by_role("heading", name="Your decision")).to_be_visible(timeout=60_000)
     expect(page.get_by_text("Fetching prices from providers").first).to_be_visible()
     expect(page.get_by_text("Optimizing (OAVOE)").first).to_be_visible()
     expect(page.get_by_text("Data limitations", exact=True)).to_be_visible()

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import type { RunEvent } from "../src/api/types";
 import { MoneyText } from "../src/components/MoneyText";
-import { ReportView } from "../src/components/ReportView";
+import { humanize, ReportView } from "../src/components/ReportView";
 import { StatusBadge } from "../src/components/StatusBadge";
 import { Timeline } from "../src/components/Timeline";
 import { makeReport } from "./helpers";
@@ -94,3 +94,32 @@ describe("ReportView", () => {
   });
 });
 
+
+describe("report formatting", () => {
+  it("turns feature codes into readable words", () => {
+    const labels = new Map([["ad_free_music", "Ad-free music"]]);
+    expect(humanize("No usable plan provides: ad_free_music, live_sports.", labels)).toBe(
+      "No usable plan provides: Ad-free music, live sports.",
+    );
+  });
+
+  it("leads with the saving, numbers its sections and offers printing", () => {
+    render(<ReportView report={makeReport()} />);
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Save ₹400.00 a month");
+    expect(screen.getByText("Sources and evidence")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Print / Save as PDF" })).toBeInTheDocument();
+    expect(screen.queryByText(/## Summary/)).not.toBeInTheDocument();
+  });
+
+  it("tells the user what to do when nothing fits", () => {
+    render(
+      <ReportView
+        featureLabels={new Map([["live_sports", "Live sports"]])}
+        report={makeReport({ status: "infeasible", recommended: [], diagnosis: "No usable plan provides: live_sports.", diagnosis_amounts: {} })}
+      />,
+    );
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("No plan combination fits your constraints");
+    expect(screen.getByText("No usable plan provides: Live sports.")).toBeInTheDocument();
+    expect(screen.getByText(/raise your budget/)).toBeInTheDocument();
+  });
+});

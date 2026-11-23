@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
 
 import { api } from "../api/client";
 
@@ -27,6 +28,11 @@ export const useSubscriptions = () => useQuery({ queryKey: keys.subscriptions, q
 export const useProviders = () => useQuery({ queryKey: keys.providers, queryFn: api.providers });
 export const usePlans = () => useQuery({ queryKey: keys.plans, queryFn: () => api.plans() });
 export const useFeatures = () => useQuery({ queryKey: keys.features, queryFn: api.features, staleTime: Infinity });
+/** feature code -> readable label, for turning codes in report text into words. */
+export const useFeatureLabels = () => {
+  const { data } = useFeatures();
+  return useMemo(() => new Map((data ?? []).map((f) => [f.code, f.label])), [data]);
+};
 export const useRequirements = () => useQuery({ queryKey: keys.requirements, queryFn: api.requirements });
 export const useMemory = () => useQuery({ queryKey: keys.memory, queryFn: api.memory });
 export const useRuns = () => useQuery({ queryKey: keys.runs, queryFn: api.runs });

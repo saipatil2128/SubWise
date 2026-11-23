@@ -104,16 +104,16 @@ export function AppLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <aside className="fixed inset-y-0 left-0 hidden w-60 bg-slate-900 lg:block">{sidebar}</aside>
+    <div className="min-h-screen bg-slate-50 print:bg-white">
+      <aside className="fixed inset-y-0 left-0 hidden w-60 bg-slate-900 lg:block print:!hidden">{sidebar}</aside>
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden" onClick={() => setOpen(false)}>
           <div className="absolute inset-0 bg-slate-900/50" />
           <aside className="absolute inset-y-0 left-0 w-64 bg-slate-900" onClick={(e) => e.stopPropagation()}>{sidebar}</aside>
         </div>
       )}
-      <div className="lg:pl-60">
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur lg:hidden">
+      <div className="lg:pl-60 print:!pl-0">
+        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur lg:hidden print:hidden">
           <button type="button" aria-label="Open menu" onClick={() => setOpen(true)} className="rounded p-1 text-slate-700 hover:bg-slate-100">☰</button>
           <Logo />
         </header>
